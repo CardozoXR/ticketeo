@@ -95,7 +95,7 @@ include "productos_interfaz.php";
 
             <p class="txt-cat" id="txt-cat-cortesia-varios" style="display:none">Varios</p>
             <?php foreach (getCategorias() as $cat): ?>
-                <div class="all-elementos" id="all-elementos-cortesias-varios" style="display: none;  margin-bottom: 10px;">
+                <div class="all-elementos" id="all-elementos-cortesias-varios" style="display: none;  margin-bottom: 80px;">
 
                     <?php foreach (getProductos(1, 3) as $row): ?>
                         <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free"

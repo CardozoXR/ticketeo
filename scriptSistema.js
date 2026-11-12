@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         body3.style.display = 'none';
         body2.style.display = 'block';
+
+        window.scrollTo({ top: 0, instant: 'smooth' });
     });
 
     btnEfectivo.addEventListener('click', async (e) => {
