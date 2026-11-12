@@ -58,6 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btnReimprimirTickets.addEventListener('click', async (e) => {
         e.preventDefault();
 
-        //
+        //logica para imprimir tickets
     });
 });
