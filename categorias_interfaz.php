@@ -1,5 +1,6 @@
 <?php
 include "categorias_sp.php";
+include "conn.php";
 
 $categorias = new Categorias();
 
@@ -42,11 +43,13 @@ function getCategorias($recargar = false)
 
     if ($categorias === null || $recargar) {
         global $conn;
-        $sp = new Categorias($conn);   // <-- el nombre real de tu clase
+        $sp = new Categorias;
         $categorias = $sp->obtenerCategoriaEnOrden();
     }
 
     return $categorias;
 }
+
+
 
 ?>

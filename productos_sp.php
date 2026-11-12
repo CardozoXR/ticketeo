@@ -40,20 +40,20 @@ class Productos
     }
 
     public function obtenerProductosPorCategoria($eventoId, $categoriaId)
-{
-    $sql = "SELECT pe.id, pe.precio, pe.etiqueta, p.nombre, p.img
-            FROM productos_evento pe
-            INNER JOIN productos p ON p.id = pe.producto_id
-            WHERE pe.evento_id = ?
-              AND p.categoria_id = ?
-              AND pe.disponible = 1
-              AND p.activo = 1
-            ORDER BY pe.orden ASC";
+    {
+        $sql = "SELECT pe.id, pe.precio, pe.etiqueta, p.nombre, p.img
+                FROM productos_evento pe
+                INNER JOIN productos p ON p.id = pe.producto_id
+                WHERE pe.evento_id = ?
+                AND p.categoria_id = ?
+                AND pe.disponible = 1
+                AND p.activo = 1
+                ORDER BY pe.orden ASC";
 
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("ii", $eventoId, $categoriaId);
-    $stmt->execute();
-    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-}
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $eventoId, $categoriaId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 }
 ?>

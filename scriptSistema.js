@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         body2.style.display = 'none';
         body3.style.display = 'block';
+
+        window.scrollTo({ top: 0, instant: 'smooth' });
     });
 
     btnBack.addEventListener('click', async (e) => {
