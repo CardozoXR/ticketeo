@@ -1,0 +1,582 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap');
+@import url('https://fonts.cdnfonts.com/css/metropolis-2');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.375s ease;
+}
+
+:root {
+  --azul: #00104f;
+  --fondo: #f1f1f1;
+  --txt2: #606060;
+  --amarillo: #ffc107;
+  --borde: #e0e0e0;
+}
+
+header{
+    background-color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.menu-header{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--azul);
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.txt-header{
+    display: flex;
+    align-items: center;
+}
+
+.nombre-header{
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.info-header{
+    font-size: 12px;
+    color: var(--txt2);
+}
+
+body{
+    background-color: var(--fondo);
+}
+
+.body2{
+    background-color: var(--fondo);
+}
+
+.categorias{
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin-left: 10px;
+}
+.categorias::-webkit-scrollbar{
+    display: none;              
+}
+
+.cat-individual{
+    position: relative;
+    padding: 5px;
+    flex: 0 0 calc(30% - 20px);
+    box-sizing: border-box;
+    background-color: white;
+    border-radius: 1000px;
+    text-align: center;
+    margin: 10px 5px;   
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    scroll-snap-align: start;
+    width: 25%;
+}
+
+.cat-selected{
+    border: 2px solid var(--azul);
+}
+
+.cat-cantidad{
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--azul);
+    color: white;
+    font-weight: 300;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+
+.txt-cat{
+    margin-left: 10px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.elementos-cat{
+    display: flex;
+    justify-content: center;
+}
+
+.div-cat img{
+    width: 50%;
+}
+
+.elemento-precio{
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.elemento-selected{
+    border: 2px solid var(--azul);
+    box-shadow: none;
+}
+
+.elemento-cantidad{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    background-color: var(--azul);
+    color: white;
+    border-radius: 100%;
+}
+
+.elemento-restar{
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid var(--azul);
+    border-radius: 100%;
+}
+
+.btn-cobrar{
+    position: fixed;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--azul);
+    color: white;
+    width: calc(100% - 20px);
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%);
+    margin-bottom: 10px;
+    border-radius: 10px;
+    align-items: center;
+}
+
+.all-elementos{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 10px;
+    margin-bottom: 80px;
+}
+
+.div-cat{
+    background-color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.cobrar-der{
+    font-weight: bold;
+    font-size: 20px;
+
+}
+
+.body4{
+    background-color: var(--fondo);
+}
+
+.aprobado {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -70%);
+    text-align: center;
+    width: max-content;
+}
+
+.venta-registrada{
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.info-venta{
+    font-size: 12px;
+    color: var(--txt2);
+}
+
+.aprobado img{
+    width: 100px;
+}
+
+.botones-venta{
+    position: fixed;
+    width: calc(100% - 20px);
+    bottom: 0;
+    text-align: center;
+    justify-content: center;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.nueva-venta{
+    background-color: var(--azul);
+    padding: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+.reimprimir-tickets{
+    padding: 10px;
+    background-color: white;
+    margin-bottom: 10px;
+    border: 2px solid var(--azul);
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+
+
+
+
+
+/*mis estilos puerco feo*/
+.body1 {
+    background-color: var(--fondo);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.logo {
+    width: 140px;
+    height: auto;
+    margin-bottom: 24px;
+}
+
+.card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 360px;
+    border-radius: 20px;
+    padding: 32px 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.card-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    color: #000;
+    font-weight: 900;
+}
+
+.card-header .user-name {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: #000;
+    font-weight: 700;
+}
+
+.card-header p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--txt2);
+}
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 6px;
+}
+
+.help-text {
+    display: block;
+    font-size: 11px;
+    color: var(--txt2);
+    margin-bottom: 8px;
+    margin-top: -4px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]::placeholder {
+    color: #b0b0b0;
+}
+
+input[type="text"]:focus {
+      border-color: var(--azul);
+}
+
+.pin-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pin-container input {
+    width: 100%;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 0;
+}
+
+.btn-submit {
+    width: 100%;
+    background-color: var(--azul);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: inherit;
+}
+
+.btn-submit:hover {
+    background-color: #001879;
+}
+
+.card-footer {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 10px;
+    color: var(--txt2);
+}
+
+.card-footer strong {
+    color: #000;
+    font-weight: 700;
+}
+
+.body3 {
+  background-color: var(--color-fondo);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding-bottom: 120px;
+}
+
+.top-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 11px;
+  margin-bottom: 24px;
+}
+
+.top-info strong { color: #000; font-size: 14px; font-weight: 900; }
+.top-info span { color: var(--txt2); }
+
+.nav-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+}
+
+.nav-header h2 { margin: 0; font-size: 22px; font-weight: 900; color: #000; }
+
+.btn-back {
+  position: absolute;
+  left: 0;
+  background: none;
+  border: none;
+  color: var(--txt2);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.btn-gift i {
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.btn-gift {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--azul);
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.product-item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  width: calc(100% - 20px);
+}
+
+.product-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-right: 16px;
+}
+
+.product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.product-name { font-size: 14px; color: #000; line-height: 1.2;}
+.product-price { font-size: 18px; font-weight: 900; color: #000; }
+
+.product-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-circle { 
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--azul);
+    background: transparent;
+    color: var(--azul);
+    font-size: 20px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    line-height: 0;
+    transition: background-color 0.2s;
+}
+.btn-circle:active {
+  background-color: #e6e8ef;
+}
+.product-qty { font-weight: 900; font-size: 16px; min-width: 14px; text-align: center; color: #000;}
+
+.total-row {
+  display: flex;
+  width: calc(100% - 20px);
+  margin: auto;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: #000;
+  margin-top: 16px;
+}
+
+.payment-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--fondo);
+  padding: 10px;
+  box-sizing: border-box;
+  z-index: 100;
+  margin-top: 0;
+}
+.payment-label {
+  text-align: center;
+  color: var(--txt2);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.payment-buttons {
+  display: flex;
+  gap: 12px;
+}
+.btn-payment {
+  flex: 1;
+  background-color: var(--azul);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 18px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+.btn-payment:hover {
+  opacity: 0.9;
+}
