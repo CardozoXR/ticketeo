@@ -11,6 +11,7 @@ include "productos_interfaz.php";
     <title>Ticketeo</title>
     <link rel="stylesheet" href="estilos.css">
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="imgs/ticketeo-icon.png" type="image/x-icon">
 </head>
 
 <body>
@@ -28,18 +29,16 @@ include "productos_interfaz.php";
         <div class="productos">
 
             <div class="categorias">
-                <?php
-                foreach ($categoriaPorID as $row) {
-                    ?>
+                <?php foreach ($categoriaPorID as $row) { ?>
 
                     <div class="cat-individual <?php echo catInicial($row['nombre']); ?>"
                         id="cat-<?php echo idCategoria($row['nombre']); ?>">
-                        <p><?php echo $row['nombre'] ?></p>
+                        <p><?php echo $row['nombre']; ?></p>
+                        <div class="cat-cantidad" data-categoria="<?php echo idCategoria($row['nombre']); ?>" style="display: none;">
+                            <p>0</p>
+                        </div>
                     </div>
-
-                    <?php
-                }
-                ?>
+                <?php } ?>
             </div>
 
             <p class="txt-cat" id="txt-cat">Medidas</p>

@@ -120,25 +120,27 @@ function sumarProducto(card) {
   if (item) {
     item.cantidad++;
   } else {
-    const cat = card.closest('.all-elementos').id
-        .replace('all-elementos-', '')
-        .replace('cortesias-', '')
-        .replace(/s$/, '');
+    const cat = card
+      .closest(".all-elementos")
+      .id.replace("all-elementos-", "")
+      .replace("cortesias-", "")
+      .replace(/s$/, "");
 
     item = {
-        id: id,
-        nombre: card.querySelector('.elemento-titulo').textContent,
-        categoria: cat.charAt(0).toUpperCase() + cat.slice(1),
-        precio: Number(card.dataset.precio),
-        imagen: card.querySelector('img').getAttribute('src'),
-        cantidad: 1
+      id: id,
+      nombre: card.querySelector(".elemento-titulo").textContent,
+      categoria: cat.charAt(0).toUpperCase() + cat.slice(1),
+      precio: Number(card.dataset.precio),
+      imagen: card.querySelector("img").getAttribute("src"),
+      cantidad: 1,
     };
-        carrito.push(item);
-    }
+    carrito.push(item);
+  }
 
   actualizarCard(card, item);
   actualizarTotal();
   mostrarBtnCobrar();
+  actualizarBadges();
 }
 
 function restarProducto(card) {
@@ -158,6 +160,7 @@ function restarProducto(card) {
 
   actualizarTotal();
   mostrarBtnCobrar();
+  actualizarBadges();
 }
 
 // Dibuja (o quita) selected, cantidad y restar en la tarjeta
@@ -200,6 +203,34 @@ function mostrarBtnCobrar() {
   }
 }
 
+function contarEnCarrito(categoria, cortesia = false) {
+    return carrito
+        .filter(p => p.categoria.toLowerCase() === categoria.toLowerCase())
+        .filter(p => String(p.id).endsWith('free') === cortesia)
+        .reduce((acc, p) => acc + p.cantidad, 0);
+}
+
+function actualizarBadges() {
+    document.querySelectorAll('.cat-cantidad').forEach(badge => {
+        const catId = badge.dataset.categoria;
+        let cantidad;
+
+        if (catId === 'cortesias') {
+            // Cortesías: se identifican por el id terminado en "free"
+            cantidad = carrito
+                .filter(p => String(p.id).endsWith('free'))
+                .reduce((acc, p) => acc + p.cantidad, 0);
+        } else {
+            // Categorías normales, sin contar las cortesías
+            const cat = catId.replace(/s$/, '');
+            cantidad = contarEnCarrito(cat, false);
+        }
+
+        badge.querySelector('p').textContent = cantidad;
+        badge.style.display = cantidad === 0 ? 'none' : '';
+    });
+}
+
 // Opcional: actualiza el botón "Cobrar"
 function actualizarTotal() {
   const tickets = carrito.reduce((acc, p) => acc + p.cantidad, 0);
@@ -236,14 +267,16 @@ function renderizarPedido() {
     const esMedida = item.categoria === "Medida";
 
     const nombreMostrado = esCortesia
-    ? esMedida
+      ? esMedida
         ? `CORTESÍA ${item.categoria} ${item.nombre}`
         : `CORTESÍA ${item.nombre}`
-    : esMedida
+      : esMedida
         ? `${item.categoria} ${item.nombre}`
         : item.nombre;
 
-    const precioMostrado = esCortesia ? "GRATIS" : `$${item.precio.toLocaleString('es-UY')}`;
+    const precioMostrado = esCortesia
+      ? "GRATIS"
+      : `$${item.precio.toLocaleString("es-UY")}`;
 
     const div = document.createElement("div");
     div.className = "product-item";
@@ -271,6 +304,8 @@ function renderizarPedido() {
 
   document.getElementById("totalAmount").textContent =
     "$" + total.toLocaleString("es-UY");
+
+  actualizarBadges();
 }
 
 document.getElementById("productList").addEventListener("click", (e) => {
@@ -306,4 +341,5 @@ function limpiarCarrito() {
   sincronizarCards(); // saca selected, cantidad y restar de las tarjetas
   renderizarPedido(); // deja vacía la lista de body3
   actualizarTotal(); // actualiza textos y total (y llama a mostrarBtnCobrar)
+  actualizarBadges();
 }

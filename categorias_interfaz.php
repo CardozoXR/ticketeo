@@ -26,13 +26,12 @@ function idCategoria($nombre)
     return trim($nombre, '-');
 }
 
-function catInicial($nombre)
-{
-    $nombre = idCategoria($nombre);
+function catInicial($nombre) {
+    $class = '';
 
-    if($nombre == "medidas"){
-        $class = "cat-selected";
-    };
+    if ($nombre === 'Medidas') {
+        $class = 'cat-selected';
+    }
 
     return $class;
 }
