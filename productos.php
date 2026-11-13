@@ -201,31 +201,9 @@ include_once "productos_interfaz.php";
         </div>
     </div>
 
-    <script>
-        function openTab(evt, tabName) {
-            // Ocultar todos los contenidos de las pestañas
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-
-            // Quitar la clase "active" de todos los botones
-            tablinks = document.getElementsByClassName("tab-btn");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-
-            // Mostrar la pestaña actual y añadir "active" al botón clickeado
-            document.getElementById(tabName).style.display = "block";
-            if (evt) {
-                evt.currentTarget.classList.add("active");
-            }
-        }
-    </script>
-
     <script src="scriptSistema.js"></script>
     <script src="scriptProductos.js"></script>
+    <script src="scriptNavbar.js"></script>
 </body>
 
 </html>
