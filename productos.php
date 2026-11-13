@@ -56,7 +56,8 @@ include_once "productos_interfaz.php";
                     <div class="cat-individual <?php echo catInicial($row['nombre']); ?>"
                         id="cat-<?php echo idCategoria($row['nombre']); ?>">
                         <p><?php echo $row['nombre']; ?></p>
-                        <div class="cat-cantidad" data-categoria="<?php echo idCategoria($row['nombre']); ?>" style="display: none;">
+                        <div class="cat-cantidad" data-categoria="<?php echo idCategoria($row['nombre']); ?>"
+                            style="display: none;">
                             <p>0</p>
                         </div>
                     </div>
@@ -83,7 +84,8 @@ include_once "productos_interfaz.php";
             <!-- CORTESIAS-->
             <p class="txt-cat" id="txt-cat-cortesia-consumiciones" style="display:none">Consumiciones</p>
 
-            <div class="all-elementos" id="all-elementos-cortesias-consumiciones" style="display: none; margin-bottom: 10px;">
+            <div class="all-elementos" id="all-elementos-cortesias-consumiciones"
+                style="display: none; margin-bottom: 10px;">
                 <div class="div-cat div-consumo" data-id="26x1-free" data-precio="0" data-cantidad="1">
                     <p class="elemento-consumo">x1</p>
                     <img src="imgs/consumicion.png" alt="" style="display: none;">
@@ -108,52 +110,41 @@ include_once "productos_interfaz.php";
 
             <p class="txt-cat" id="txt-cat-cortesia-medidas" style="display:none">Medidas</p>
 
-            <?php foreach (getCategorias() as $cat): ?>
-                <div class="all-elementos" id="all-elementos-cortesias-medidas" style="display: none;  margin-bottom: 10px;">
-
-                    <?php foreach (getProductos(1, 1) as $row): ?>
-                        <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free"
-                            data-precio="0">
-                            <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
-                            <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
-                            <p class="elemento-precio">GRATIS</p>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endforeach; ?>
+            <div class="all-elementos" id="all-elementos-cortesias-medidas" style="display: none; margin-bottom: 10px;">
+                <?php foreach (getProductos(1, 1) as $row): ?>
+                    <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
+                        <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
+                        <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
+                        <p class="elemento-precio">GRATIS</p>
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
 
             <p class="txt-cat" id="txt-cat-cortesia-botellas" style="display:none;">Botellas</p>
-            <?php foreach (getCategorias() as $cat): ?>
-                <div class="all-elementos" id="all-elementos-cortesias-botellas" style="display: none;  margin-bottom: 10px;">
+            <div class="all-elementos" id="all-elementos-cortesias-botellas"
+                style="display: none;  margin-bottom: 10px;">
 
-                    <?php foreach (getProductos(1, 2) as $row): ?>
-                        <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free"
-                            data-precio="0">
-                            <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
-                            <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
-                            <p class="elemento-precio">GRATIS</p>
-                        </div>
-                    <?php endforeach; ?>
+                <?php foreach (getProductos(1, 2) as $row): ?>
+                    <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
+                        <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
+                        <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
+                        <p class="elemento-precio">GRATIS</p>
+                    </div>
+                <?php endforeach; ?>
 
-                </div>
-            <?php endforeach; ?>
+            </div>
 
             <p class="txt-cat" id="txt-cat-cortesia-varios" style="display:none">Varios</p>
-            <?php foreach (getCategorias() as $cat): ?>
-                <div class="all-elementos" id="all-elementos-cortesias-varios" style="display: none;  margin-bottom: 80px;">
-
-                    <?php foreach (getProductos(1, 3) as $row): ?>
-                        <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free"
-                            data-precio="0">
-                            <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
-                            <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
-                            <p class="elemento-precio">GRATIS</p>
-                        </div>
-                    <?php endforeach; ?>
-
-                </div>
-            <?php endforeach; ?>
+            <div class="all-elementos" id="all-elementos-cortesias-varios" style="display: none;  margin-bottom: 80px;">
+                <?php foreach (getProductos(1, 3) as $row): ?>
+                    <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
+                        <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
+                        <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
+                        <p class="elemento-precio">GRATIS</p>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
         <div class="btn-cobrar" id="btn-cobrar" style="display:none;">
             <p class="cobrar-izq">Cobrar - 0 tickets</p>
