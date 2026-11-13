@@ -223,31 +223,31 @@ function mostrarBtnCobrar() {
 }
 
 function contarEnCarrito(categoria, cortesia = false) {
-    return carrito
-        .filter(p => p.categoria.toLowerCase() === categoria.toLowerCase())
-        .filter(p => String(p.id).endsWith('free') === cortesia)
-        .reduce((acc, p) => acc + p.cantidad, 0);
+  return carrito
+    .filter((p) => p.categoria.toLowerCase() === categoria.toLowerCase())
+    .filter((p) => String(p.id).endsWith("free") === cortesia)
+    .reduce((acc, p) => acc + p.cantidad, 0);
 }
 
 function actualizarBadges() {
-    document.querySelectorAll('.cat-cantidad').forEach(badge => {
-        const catId = badge.dataset.categoria;
-        let cantidad;
+  document.querySelectorAll(".cat-cantidad").forEach((badge) => {
+    const catId = badge.dataset.categoria;
+    let cantidad;
 
-        if (catId === 'cortesias') {
-            // Cortesías: se identifican por el id terminado en "free"
-            cantidad = carrito
-                .filter(p => String(p.id).endsWith('free'))
-                .reduce((acc, p) => acc + p.cantidad, 0);
-        } else {
-            // Categorías normales, sin contar las cortesías
-            const cat = catId.replace(/s$/, '');
-            cantidad = contarEnCarrito(cat, false);
-        }
+    if (catId === "cortesias") {
+      // Cortesías: se identifican por el id terminado en "free"
+      cantidad = carrito
+        .filter((p) => String(p.id).endsWith("free"))
+        .reduce((acc, p) => acc + p.cantidad, 0);
+    } else {
+      // Categorías normales, sin contar las cortesías
+      const cat = catId.replace(/s$/, "");
+      cantidad = contarEnCarrito(cat, false);
+    }
 
-        badge.querySelector('p').textContent = cantidad;
-        badge.style.display = cantidad === 0 ? 'none' : '';
-    });
+    badge.querySelector("p").textContent = cantidad;
+    badge.style.display = cantidad === 0 ? "none" : "";
+  });
 }
 
 // Opcional: actualiza el botón "Cobrar"

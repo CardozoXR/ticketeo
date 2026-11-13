@@ -46,7 +46,6 @@ include_once "productos_interfaz.php";
 
     </div>
 
-
     <div class="body2" id="body2" style="display: block;">
         <div class="productos">
 
@@ -109,7 +108,6 @@ include_once "productos_interfaz.php";
             </div>
 
             <p class="txt-cat" id="txt-cat-cortesia-medidas" style="display:none">Medidas</p>
-
             <div class="all-elementos" id="all-elementos-cortesias-medidas" style="display: none; margin-bottom: 10px;">
                 <?php foreach (getProductos(1, 1) as $row): ?>
                     <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
@@ -120,11 +118,9 @@ include_once "productos_interfaz.php";
                 <?php endforeach; ?>
             </div>
 
-
             <p class="txt-cat" id="txt-cat-cortesia-botellas" style="display:none;">Botellas</p>
             <div class="all-elementos" id="all-elementos-cortesias-botellas"
                 style="display: none;  margin-bottom: 10px;">
-
                 <?php foreach (getProductos(1, 2) as $row): ?>
                     <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
                         <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
@@ -132,7 +128,6 @@ include_once "productos_interfaz.php";
                         <p class="elemento-precio">GRATIS</p>
                     </div>
                 <?php endforeach; ?>
-
             </div>
 
             <p class="txt-cat" id="txt-cat-cortesia-varios" style="display:none">Varios</p>
@@ -145,11 +140,14 @@ include_once "productos_interfaz.php";
                     </div>
                 <?php endforeach; ?>
             </div>
+
         </div>
+
         <div class="btn-cobrar" id="btn-cobrar" style="display:none;">
             <p class="cobrar-izq">Cobrar - 0 tickets</p>
             <p class="cobrar-der">$0</p>
         </div>
+
     </div>
 
     <div class="body3" id="body3" style="display: none;">
