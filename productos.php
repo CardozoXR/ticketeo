@@ -1,6 +1,7 @@
 <?php
-include "categorias_interfaz.php";
-include "productos_interfaz.php";
+include_once "funciones_navbar.php";
+include_once "categorias_interfaz.php";
+include_once "productos_interfaz.php";
 ?>
 <!DOCTYPE html>
 <html lang="es-UY">
@@ -24,6 +25,27 @@ include "productos_interfaz.php";
             <i class='bx bx-menu'></i>
         </div>
     </header>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h2>Panel de Control</h2>
+            <i class='bx bx-x' id="closeSidebar"></i>
+        </div>
+
+        <div class="sidebar-tabs">
+            <button class="tab-btn active" id="btnTab1" onclick="openTab(event, 'tabCaja1')">Caja 1</button>
+            <button class="tab-btn" id="btnTab2" onclick="openTab(event, 'tabCaja2')">Caja 2</button>
+            <button class="tab-btn" id="btnTab3" onclick="openTab(event, 'tabResumen')">Resumen</button>
+        </div>
+
+        <div id="contenedorTabs">
+            <?php include "refresh_sidebar.php"; ?>
+        </div>
+
+    </div>
+
 
     <div class="body2" id="body2" style="display: block;">
         <div class="productos">
@@ -178,6 +200,29 @@ include "productos_interfaz.php";
             </div>
         </div>
     </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Ocultar todos los contenidos de las pestañas
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Quitar la clase "active" de todos los botones
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+
+            // Mostrar la pestaña actual y añadir "active" al botón clickeado
+            document.getElementById(tabName).style.display = "block";
+            if (evt) {
+                evt.currentTarget.classList.add("active");
+            }
+        }
+    </script>
 
     <script src="scriptSistema.js"></script>
     <script src="scriptProductos.js"></script>
