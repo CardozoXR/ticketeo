@@ -4,6 +4,10 @@ const catVarios = document.getElementById("cat-varios");
 const catCortesias = document.getElementById("cat-cortesias");
 
 const txtCategoria = document.getElementById("txt-cat");
+
+const txtCatCortesiaConsumiciones = document.getElementById(
+  "txt-cat-cortesia-consumiciones",
+);
 const txtCatCortesiaMedidas = document.getElementById(
   "txt-cat-cortesia-medidas",
 );
@@ -15,6 +19,9 @@ const txtCatCortesiaVarios = document.getElementById("txt-cat-cortesia-varios");
 const allElementosMedidas = document.getElementById("all-elementos-medidas");
 const allElementosBotellas = document.getElementById("all-elementos-botellas");
 const allElementosVarios = document.getElementById("all-elementos-varios");
+const allElementosCortesiasConsumiciones = document.getElementById(
+  "all-elementos-cortesias-consumiciones",
+);
 const allElementosCortesiasMedidas = document.getElementById(
   "all-elementos-cortesias-medidas",
 );
@@ -41,10 +48,12 @@ function seleccionarMedidas() {
   allElementosMedidas.style.display = "grid";
   allElementosBotellas.style.display = "none";
   allElementosVarios.style.display = "none";
+  allElementosCortesiasConsumiciones.style.display = "none";
   allElementosCortesiasMedidas.style.display = "none";
   allElementosCortesiasBotellas.style.display = "none";
   allElementosCortesiasVarios.style.display = "none";
 
+  txtCatCortesiaConsumiciones.style.display = "none";
   txtCatCortesiaMedidas.style.display = "none";
   txtCatCortesiaBotellas.style.display = "none";
   txtCatCortesiaVarios.style.display = "none";
@@ -60,10 +69,12 @@ function seleccionarBotellas() {
   allElementosMedidas.style.display = "none";
   allElementosBotellas.style.display = "grid";
   allElementosVarios.style.display = "none";
+  allElementosCortesiasConsumiciones.style.display = "none";
   allElementosCortesiasMedidas.style.display = "none";
   allElementosCortesiasBotellas.style.display = "none";
   allElementosCortesiasVarios.style.display = "none";
 
+  txtCatCortesiaConsumiciones.style.display = "none";
   txtCatCortesiaMedidas.style.display = "none";
   txtCatCortesiaBotellas.style.display = "none";
   txtCatCortesiaVarios.style.display = "none";
@@ -79,10 +90,12 @@ function seleccionarVarios() {
   allElementosMedidas.style.display = "none";
   allElementosBotellas.style.display = "none";
   allElementosVarios.style.display = "grid";
+  allElementosCortesiasConsumiciones.style.display = "none";
   allElementosCortesiasMedidas.style.display = "none";
   allElementosCortesiasBotellas.style.display = "none";
   allElementosCortesiasVarios.style.display = "none";
 
+  txtCatCortesiaConsumiciones.style.display = "none";
   txtCatCortesiaMedidas.style.display = "none";
   txtCatCortesiaBotellas.style.display = "none";
   txtCatCortesiaVarios.style.display = "none";
@@ -97,10 +110,12 @@ function seleccionarCortesias() {
   allElementosMedidas.style.display = "none";
   allElementosBotellas.style.display = "none";
   allElementosVarios.style.display = "none";
+  allElementosCortesiasConsumiciones.style.display = "flex";
   allElementosCortesiasMedidas.style.display = "grid";
   allElementosCortesiasBotellas.style.display = "grid";
   allElementosCortesiasVarios.style.display = "grid";
 
+  txtCatCortesiaConsumiciones.style.display = "block";
   txtCatCortesiaMedidas.style.display = "block";
   txtCatCortesiaBotellas.style.display = "block";
   txtCatCortesiaVarios.style.display = "block";
@@ -115,10 +130,11 @@ const carrito = []; // [{ id, nombre, precio, cantidad }]
 
 function sumarProducto(card) {
   const id = card.dataset.id;
+  const paso = Number(card.dataset.cantidad) || 1; // x5 -> 5, el resto -> 1
   let item = carrito.find((p) => p.id === id);
 
   if (item) {
-    item.cantidad++;
+    item.cantidad += paso;
   } else {
     const cat = card
       .closest(".all-elementos")
@@ -132,7 +148,7 @@ function sumarProducto(card) {
       categoria: cat.charAt(0).toUpperCase() + cat.slice(1),
       precio: Number(card.dataset.precio),
       imagen: card.querySelector("img").getAttribute("src"),
-      cantidad: 1,
+      cantidad: paso,
     };
     carrito.push(item);
   }
@@ -167,6 +183,7 @@ function restarProducto(card) {
 function actualizarCard(card, item) {
   let cantidad = card.querySelector(".elemento-cantidad");
   let restar = card.querySelector(".elemento-restar");
+  const esConsumo = card.classList.contains("div-consumo");
 
   if (!item) {
     card.classList.remove("elemento-selected");
@@ -183,6 +200,7 @@ function actualizarCard(card, item) {
     cantidad.innerHTML = "<p></p>";
     card.appendChild(cantidad);
   }
+  cantidad.classList.toggle("elemento-cantidad-consumicion", esConsumo);
   cantidad.querySelector("p").textContent = item.cantidad;
 
   if (!restar) {
@@ -191,6 +209,7 @@ function actualizarCard(card, item) {
     restar.innerHTML = "<p>-</p>";
     card.appendChild(restar);
   }
+  restar.classList.toggle("elemento-restar-consumicion", esConsumo);
 }
 
 function mostrarBtnCobrar() {

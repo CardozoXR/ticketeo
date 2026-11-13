@@ -59,6 +59,31 @@ include "productos_interfaz.php";
             <?php endforeach; ?>
 
             <!-- CORTESIAS-->
+            <p class="txt-cat" id="txt-cat-cortesia-consumiciones" style="display:none">Consumiciones</p>
+
+            <div class="all-elementos" id="all-elementos-cortesias-consumiciones" style="display: none; margin-bottom: 10px;">
+                <div class="div-cat div-consumo" data-id="26x1-free" data-precio="0" data-cantidad="1">
+                    <p class="elemento-consumo">x1</p>
+                    <img src="imgs/consumicion.png" alt="" style="display: none;">
+                    <p class="elemento-titulo" style="display: none;">CONSUMO</p>
+                </div>
+                <div class="div-cat div-consumo" data-id="26x5-free" data-precio="0" data-cantidad="5">
+                    <p class="elemento-consumo">x5</p>
+                    <img src="imgs/consumicion.png" alt="" style="display: none;">
+                    <p class="elemento-titulo" style="display: none;">CONSUMO</p>
+                </div>
+                <div class="div-cat div-consumo" data-id="26x10-free" data-precio="0" data-cantidad="10">
+                    <p class="elemento-consumo">x10</p>
+                    <img src="imgs/consumicion.png" alt="" style="display: none;">
+                    <p class="elemento-titulo" style="display: none;">CONSUMO</p>
+                </div>
+                <div class="div-cat div-consumo" data-id="26x50-free" data-precio="0" data-cantidad="50">
+                    <p class="elemento-consumo">x50</p>
+                    <img src="imgs/consumicion.png" alt="" style="display: none;">
+                    <p class="elemento-titulo" style="display: none;">CONSUMO</p>
+                </div>
+            </div>
+
             <p class="txt-cat" id="txt-cat-cortesia-medidas" style="display:none">Medidas</p>
 
             <?php foreach (getCategorias() as $cat): ?>
