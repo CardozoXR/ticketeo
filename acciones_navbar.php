@@ -1,27 +1,24 @@
 <?php
-include "conn.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+header('Content-Type: application/json');
+include_once "conn.php";
+require_once "funciones_navbar.php";
 
 if (!$conn) {
     die(json_encode(["status" => "error", "message" => "Error de conexión"]));
 }
 
+$controlador = new FuncionesNavbar($conn);
 $accion = $_POST['accion'] ?? '';
-$cajero_id = $_POST['cajero_id'] ?? 0;
+$cajero_id = (int)($_POST['cajero_id'] ?? 0);
 
 if ($accion === 'cambiar_nombre') {
-    $nuevo_nombre = $_POST['nombre'] ?? '';
-    $stmt = $conn->prepare("UPDATE cajeros SET nombre = ? WHERE id = ?");
-    $stmt->bind_param("si", $nuevo_nombre, $cajero_id);
-    
-    if ($stmt->execute()) echo json_encode(["status" => "success"]);
-    else echo json_encode(["status" => "error", "message" => $conn->error]);
-
+    echo json_encode($controlador->actualizarNombre($cajero_id, $_POST['nombre'] ?? ''));
 } elseif ($accion === 'reset_pin') {
-    $nuevo_pin = $_POST['pin'] ?? '';
-    $stmt = $conn->prepare("UPDATE cajeros SET pin = ? WHERE id = ?");
-    $stmt->bind_param("si", $nuevo_pin, $cajero_id);
-    
-    if ($stmt->execute()) echo json_encode(["status" => "success"]);
-    else echo json_encode(["status" => "error", "message" => $conn->error]);
+    echo json_encode($controlador->actualizarPin($cajero_id, $_POST['pin'] ?? ''));
+} else {
+    echo json_encode(["status" => "error", "message" => "Acción no válida"]);
 }
 ?>

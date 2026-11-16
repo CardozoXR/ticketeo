@@ -1,19 +1,10 @@
-<?php
-include "conn.php";
-include_once "funciones_navbar.php";
-
-$caja1 = getDatosCaja($conn, 1);
-$caja2 = getDatosCaja($conn, 2);
-$resumen = getDatosResumen($conn);
-?>
-
 <!-- CONTENIDO CAJA 1 -->
 <div id="tabCaja1" class="tab-content" style="display: block;">
     <?php if(isset($caja1) && $caja1): ?>
         <div class="info-group">
             <p><strong>Cajero:</strong> <span><?= htmlspecialchars($caja1['cajero_nombre']) ?></span></p>
-            <button class="btn-accion" onclick="cambiarNombre(<?= $caja1['cajero_id'] ?>, 1)">Cambiar Nombre</button>
-            <button class="btn-accion" onclick="resetPin(<?= $caja1['cajero_id'] ?>)">Restablecer PIN</button>
+            <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja1['cajero_id'] ?>, 1)">Cambiar Nombre</button>
+            <button class="btn-accion" onclick="resetPin(<?= (int)$caja1['cajero_id'] ?>)">Restablecer PIN</button>
         </div>
         <div class="info-group totales">
             <p><strong>Efectivo:</strong> $<?= number_format($caja1['efectivo'], 0, ',', '.') ?></p>
@@ -39,8 +30,8 @@ $resumen = getDatosResumen($conn);
     <?php if(isset($caja2) && $caja2): ?>
          <div class="info-group">
             <p><strong>Cajero:</strong> <span><?= htmlspecialchars($caja2['cajero_nombre']) ?></span></p>
-            <button class="btn-accion" onclick="cambiarNombre(<?= $caja2['cajero_id'] ?>, 2)">Cambiar Nombre</button>
-            <button class="btn-accion" onclick="resetPin(<?= $caja2['cajero_id'] ?>)">Restablecer PIN</button>
+            <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja2['cajero_id'] ?>, 2)">Cambiar Nombre</button>
+            <button class="btn-accion" onclick="resetPin(<?= (int)$caja2['cajero_id'] ?>)">Restablecer PIN</button>
         </div>
         <div class="info-group totales">
             <p><strong>Efectivo:</strong> $<?= number_format($caja2['efectivo'], 0, ',', '.') ?></p>

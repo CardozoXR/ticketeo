@@ -1,7 +1,6 @@
 <?php
 session_start();
-require_once 'conn.php';
-require_once 'cajeros_interfaz.php';
+require_once 'funciones_cajeros.php';
 
 $caja = filter_input(INPUT_GET, 'caja', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 if (!$caja) {
@@ -9,21 +8,9 @@ if (!$caja) {
     exit('Caja inválida');
 }
 
-function iniciarSesion(string $nombre, int $caja): void
-{
-    session_regenerate_id(true);
-    $_SESSION['nombre']    = $nombre;
-    $_SESSION['caja']      = $caja;
-    header("Location: caja{$caja}.php");
-    exit;
-}
-
 $cajero = obtenerInfoCajero($caja);
-if($cajero !== null){
-  $modoLogin = true;
-} else{
-  $modoLogin = false;
-}
+$modoLogin = ($cajero !== null);
+$error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pin = $_POST['pin'] ?? '';
@@ -32,20 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'El PIN debe tener 4 dígitos.';
     } elseif ($modoLogin) {
         if ($pin === $cajero['pin']) {
-            iniciarSesion($cajero['nombre'], $caja);
+            iniciarSesionCajero($cajero['nombre'], $caja);
         } else {
-            echo "PIN incorrecto";
+            $error = 'PIN incorrecto.';
         }
-        $error = 'PIN incorrecto.';
     } else {
         $nombre = trim($_POST['nombre'] ?? '');
         if ($nombre === '') {
             $error = 'Ingresá tu nombre y apellido.';
         } else {
             try {
-                $id = crearCajero($caja, $nombre, $pin, $caja);
-                iniciarSesion($nombre, $caja);
-            } catch (PDOException $e) {
+                crearCajero($caja, $nombre, $pin, $caja);
+                iniciarSesionCajero($nombre, $caja);
+            } catch (Throwable $e) {
                 $error = 'Esta caja ya fue registrada. Recargá la página.';
             }
         }
@@ -75,6 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <p>Configurá los datos para iniciar a operar</p>
         <?php endif; ?>
       </div>
+
+      <?php if ($error): ?>
+        <p style="color: #ff4d4d; text-align: center; margin-bottom: 10px; font-weight: bold;">
+          <?= htmlspecialchars($error) ?>
+        </p>
+      <?php endif; ?>
 
       <form id="formCaja" method="post">
         <?php if (!$modoLogin): ?>
