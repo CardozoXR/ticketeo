@@ -1,7 +1,24 @@
 <?php
+session_start();
+if (($_SESSION['caja'] ?? null) !== 1) {   // 2 en caja2.php, etc.
+    header('Location: login.php?caja=1');
+    exit;
+}
+
+$nombre = $_SESSION['nombre'];
+$caja = $_SESSION['caja'];
+
 include_once "funciones_navbar.php";
 include_once "categorias_interfaz.php";
 include_once "productos_interfaz.php";
+include_once "cajeros_interfaz.php";
+
+if(obtenerCajeroPorCaja($caja) === null) {
+    header('Location: login.php?caja=' . $caja);
+    session_destroy();
+    exit;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es-UY">
@@ -18,8 +35,8 @@ include_once "productos_interfaz.php";
 <body>
     <header>
         <div class="txt-header">
-            <div class="nombre-header">Juan Cardozo</div>
-            <div class="info-header">Caja 1 - After Banco 10.12</div>
+            <div class="nombre-header"><?php echo $nombre ?></div>
+            <div class="info-header">Caja <?php echo $caja ?> - After Banco 10.12</div>
         </div>
         <div class="menu-header">
             <i class='bx bx-menu'></i>
@@ -189,10 +206,8 @@ include_once "productos_interfaz.php";
             </div>
         </div>
     </div>
-
     <script src="scriptSistema.js"></script>
     <script src="scriptProductos.js"></script>
     <script src="scriptNavbar.js"></script>
 </body>
-
 </html>

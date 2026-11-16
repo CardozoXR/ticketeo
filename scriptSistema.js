@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     body3.style.display = "none";
     body4.style.display = "block";
+
+    imprimirTickets();
   });
 
   btnTarjeta.addEventListener("click", async (e) => {
@@ -44,6 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     body3.style.display = "none";
     body4.style.display = "block";
+
+    imprimirTickets();
   });
 
   btnNuevaVenta.addEventListener("click", async (e) => {
@@ -62,6 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
   btnReimprimirTickets.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    //logica para imprimir tickets
+    imprimirTickets();
   });
+
+  function imprimirTickets() {
+    //logica para imprimir tickets
+  }
 });

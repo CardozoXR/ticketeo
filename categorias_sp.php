@@ -58,7 +58,5 @@ class Categorias
 
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
-
-    
 }
 ?>

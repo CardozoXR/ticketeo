@@ -5,3 +5,7 @@ VALUES (4, 'Consumición', 'imgs/consumicion.png', 1);
 
 INSERT INTO ticketeo.productos_evento (evento_id, producto_id, precio, etiqueta, orden, disponible)
 VALUES (1, 26, 0, 'CONSUMO', 1, 1);
+
+--AGREGAR CAJA
+INSERT INTO ticketeo.cajas (evento_id, numero, nombre, activo)
+VALUES ('1', '1', 'Caja 1', '1');
