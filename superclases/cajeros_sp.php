@@ -19,7 +19,6 @@ class Cajeros
         }
     }
 
-
     public function obtenerTodosLosCajeros()
     {
         $sql = "SELECT * FROM cajeros";
@@ -37,21 +36,27 @@ class Cajeros
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function obtenerInfoCajero($cajaid)
-    {
-        $sql = "SELECT * FROM cajeros WHERE caja_id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $cajaid);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-        return $resultado->fetch_all(MYSQLI_ASSOC);
-    }
-
     public function agregarCajero($cajaid, $nombre, $pin, $activo)
     {
         $sql = "INSERT INTO cajeros (caja_id, nombre, pin, activo) VALUES (?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("ssss", $cajaid, $nombre, $pin, $activo);
+        return $stmt->execute();
+    }
+
+    public function editarCajero($cajaid, $nombre, $pin, $activo)
+    {
+        $sql = "UPDATE cajeros SET nombre = ?, pin = ?, activo = ? WHERE caja_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssss", $nombre, $pin, $activo, $cajaid);
+        return $stmt->execute();
+    }
+
+    public function eliminarCajero($cajaid)
+    {
+        $sql = "DELETE FROM cajeros WHERE caja_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $cajaid);
         return $stmt->execute();
     }
 }

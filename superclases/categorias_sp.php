@@ -58,5 +58,29 @@ class Categorias
 
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function agregarCategoria($nombre, $orden)
+    {
+        $sql = "INSERT INTO categorias (nombre, orden) VALUES (?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ss", $nombre, $orden);
+        return $stmt->execute();
+    }
+
+    public function editarCategoria($idcategoria, $nombre, $orden)
+    {
+        $sql = "UPDATE categorias SET nombre = ?, orden = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssi", $nombre, $orden, $idcategoria);
+        return $stmt->execute();
+    }
+
+    public function eliminarCategoria($idcategoria)
+    {
+        $sql = "DELETE FROM categorias WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $idcategoria);
+        return $stmt->execute();
+    }
 }
 ?>

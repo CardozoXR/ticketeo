@@ -1,5 +1,5 @@
 <?php
-class VentasSP {
+class Ventas {
     private $conn;
 
     public function __construct($conexion) {

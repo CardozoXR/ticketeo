@@ -25,7 +25,7 @@ function obtenerCajeroPorCaja(int $caja)
 function obtenerInfoCajero(int $caja)
 {
     $sp = new Cajeros();
-    $resultado = $sp->obtenerInfoCajero($caja);
+    $resultado = $sp->obtenerCajeroPorCaja($caja);
 
     return empty($resultado) ? null : $resultado[0];
 }

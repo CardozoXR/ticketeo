@@ -6,7 +6,7 @@ class FuncionesVentas {
     private $modelo;
 
     public function __construct($conexion) {
-        $this->modelo = new VentasSP($conexion);
+        $this->modelo = new Ventas($conexion);
     }
 
     public function procesarCobro($caja_numero, $metodo_pago, $itemsCarrito, $evento_id = 1) {

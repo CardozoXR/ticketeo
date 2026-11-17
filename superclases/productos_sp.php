@@ -55,5 +55,61 @@ class Productos
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function obtenerProductoPorID($productoId)
+    {
+        $sql = "SELECT * FROM productos WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $productoId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    public function obtenerProductosPorEvento($eventoId)
+    {
+        $sql = "SELECT pe.id, pe.precio, pe.etiqueta, p.nombre, p.img
+                FROM productos_evento pe
+                INNER JOIN productos p ON p.id = pe.producto_id
+                WHERE pe.evento_id = ?
+                AND pe.disponible = 1
+                AND p.activo = 1
+                ORDER BY pe.orden ASC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $eventoId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function obtenerProductosActivos()
+    {
+        $sql = "SELECT * FROM productos WHERE activo = 1";
+        $resultado = $this->conn->query($sql);
+        return $resultado->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function agregarProducto($nombre, $categoriaId, $img, $activo)
+    {
+        $sql = "INSERT INTO productos (nombre, categoria_id, img, activo) VALUES (?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("siss", $nombre, $categoriaId, $img, $activo);
+        return $stmt->execute();
+    }
+
+    public function editarProducto($productoId, $nombre, $categoriaId, $img, $activo)
+    {
+        $sql = "UPDATE productos SET nombre = ?, categoria_id = ?, img = ?, activo = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("sissi", $nombre, $categoriaId, $img, $activo, $productoId);
+        return $stmt->execute();
+    }
+
+    public function eliminarProducto($productoId)
+    {
+        $sql = "DELETE FROM productos WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $productoId);
+        return $stmt->execute();
+    }
 }
 ?>
