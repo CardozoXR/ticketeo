@@ -10,9 +10,9 @@ if (($_SESSION['caja'] ?? null) !== $cajaRequerida) {
 $nombre = $_SESSION['nombre'];
 $caja = $_SESSION['caja'];
 
-include_once "funciones_cajeros.php";
-include_once "funciones_categorias.php";
-include_once "funciones_productos.php";
+include_once __DIR__ . "/interfaces/cajeros_interfaz.php";
+include_once __DIR__ . "/interfaces/categorias_interfaz.php";
+include_once __DIR__ . "/interfaces/productos_interfaz.php";
 
 if (obtenerCajeroPorCaja($caja) === null) {
     header('Location: login.php?caja=' . $caja);
@@ -27,7 +27,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ticketeo</title>
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="estilos/estilos.css">
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     <link rel="icon" href="imgs/ticketeo-icon.png" type="image/x-icon">
 </head>
@@ -221,8 +221,8 @@ if (obtenerCajeroPorCaja($caja) === null) {
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="scriptSistema.js"></script>
-    <script src="scriptProductos.js"></script>
-    <script src="scriptNavbar.js"></script>
+    <script src="scripts/scriptSistema.js"></script>
+    <script src="scripts/scriptProductos.js"></script>
+    <script src="scripts/scriptNavbar.js"></script>
 </body>
 </html>

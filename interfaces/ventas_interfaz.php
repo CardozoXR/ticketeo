@@ -1,6 +1,6 @@
 <?php
-require_once "ventas_sp.php";
-require_once "funciones_impresion.php";
+require_once __DIR__ . "/../superclases/ventas_sp.php";
+require_once __DIR__ . "/../funciones_impresion.php";
 
 class FuncionesVentas {
     private $modelo;

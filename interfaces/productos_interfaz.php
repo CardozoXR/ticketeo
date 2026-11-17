@@ -1,7 +1,7 @@
 <?php
-include_once "conn.php";
-include_once "productos_sp.php";
-include_once "funciones_categorias.php";
+include_once __DIR__ . "/../conn/conn.php";
+include_once __DIR__ . "/../superclases/productos_sp.php";
+include_once __DIR__ . "/categorias_interfaz.php";
 
 function getProductos($eventoId, $categoriaId)
 {

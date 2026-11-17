@@ -1,5 +1,5 @@
 <?php
-require_once "navbar_sp.php";
+require_once __DIR__ . "/superclases/navbar_sp.php";
 
 class FuncionesNavbar {
     private $modelo;
@@ -13,12 +13,12 @@ class FuncionesNavbar {
         $caja2 = $this->modelo->getDatosCaja(2, $evento_id);
         $resumen = $this->modelo->getDatosResumen($evento_id);
 
-        require "vista_navbar.php";
+        require __DIR__ . "/vista_navbar.php";
     }
 
     public function renderizarPerfil($caja_numero, $evento_id = 1) {
         $perfilCaja = $this->modelo->getDatosCaja($caja_numero, $evento_id);
-        require "vista_perfil.php";
+        require __DIR__ . "/vista_perfil.php";
     }
 
     public function actualizarNombre($cajero_id, $nombre) {

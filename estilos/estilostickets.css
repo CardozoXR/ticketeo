@@ -1,0 +1,99 @@
+@page {
+    size: 58mm 120mm;
+    margin: 0;
+}
+
+*{
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body{
+    background-color: rgb(223, 222, 222);
+    font-family: 'VCR OSD Mono', monospace;
+}
+
+.ticket{
+    width: 58mm;
+    padding: 5mm;
+    background-color: white;
+    text-align: center;
+    margin: 0 auto;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+.codigohead{
+    background-color: black;
+    color: white;
+    text-align: center;
+}
+
+.evento img{
+    width: 50%;
+    margin-top: 10px;
+}
+
+.evento p{
+    font-weight: bold;
+    font-size: 18px;
+    margin: 5px;
+}
+
+.infoevento{
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.consumo{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.precioconsumo{
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.barcode img{
+    width: 80%;
+}
+
+.infogeneral{
+    font-size: 10px;
+    text-align: left;
+}
+
+.inforesponsabilidad{
+    font-size: 8px;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.dev img{
+    width: 100%;
+    margin-top: 5px;
+}
+
+@media print {
+    html, body {
+        width: 58mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    .ticket {
+        width: 58mm !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 5mm !important;
+        break-inside: avoid;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}

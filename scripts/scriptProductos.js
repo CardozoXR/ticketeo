@@ -361,4 +361,5 @@ function limpiarCarrito() {
   renderizarPedido(); // deja vacía la lista de body3
   actualizarTotal(); // actualiza textos y total (y llama a mostrarBtnCobrar)
   actualizarBadges();
+  mostrarBtnCobrar();
 }

@@ -1,6 +1,6 @@
 <?php
-include_once "conn.php";
-include_once "cajeros_sp.php";
+include_once __DIR__ . "/../conn/conn.php";
+include_once __DIR__ . "/../superclases/cajeros_sp.php";
 
 function getCajeros($recargar = false)
 {

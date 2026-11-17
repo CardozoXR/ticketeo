@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 header('Content-Type: application/json');
-include_once "conn.php";
+include_once __DIR__ . "/conn/conn.php";
 require_once "funciones_navbar.php";
 
 if (!$conn) {

@@ -13,8 +13,8 @@ try {
         exit;
     }
 
-    include_once "conn.php";
-    require_once "funciones_ventas.php";
+    include_once __DIR__ . "/conn/conn.php";
+    require_once __DIR__ . "/interfaces/ventas_interfaz.php";
 
     if (!isset($conn) || !$conn) {
         throw new Exception("No hay conexión con la base de datos.");

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'funciones_cajeros.php';
+require_once __DIR__ . '/interfaces/cajeros_interfaz.php';
 
 $caja = filter_input(INPUT_GET, 'caja', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 if (!$caja) {
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $modoLogin ? 'INICIAR SESIÓN' : 'REGISTRO' ?> - TicketeoUY</title>
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="estilos/estilos.css">
 </head>
 <body>
   <div class="body1">
@@ -99,6 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </div>
   </div>
-<script src="scriptLogin.js"></script>
+<script src="scripts/scriptLogin.js"></script>
 </body>
 </html>

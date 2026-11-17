@@ -198,6 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (modalTicketsOverlay) modalTicketsOverlay.style.display = "none";
     seleccionarMedidas();
     limpiarCarrito();
+    mostrarBtnCobrar();
 
     body4.style.display = "none";
     body2.style.display = "block";

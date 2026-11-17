@@ -1,6 +1,6 @@
 <?php
-include_once "conn.php";
-include_once "categorias_sp.php";
+include_once __DIR__ . "/../conn/conn.php";
+include_once __DIR__ . "/../superclases/categorias_sp.php";
 
 function idCategoria($nombre)
 {
