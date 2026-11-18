@@ -157,6 +157,8 @@ class Ventas
             $tickets_generados = [];
             $correlativo = 1;
 
+            $fechaDdmm = date('dm', strtotime($this->obtenerFechaEvento($evento_id)['fecha']));
+
             foreach ($itemsProcesados as $item) {
                 $stmtDetalle->bind_param(
                     "iissidd",
@@ -175,12 +177,16 @@ class Ventas
 
                 for ($i = 0; $i < $item['cantidad']; $i++) {
                     $numero_ticket = sprintf("T%d-%d-%03d", $evento_id, $venta_id, $correlativo);
-                    $evento_idQR = 1000 + $evento_id;
-                    $fecha_evento = date('dm', strtotime($this->obtenerFechaEvento($evento_id)['fecha']));
-                    $producto_id = $item['producto_evento_id'];
-                    $autoincrement = $detalle_venta_id . $i;
-                    // $codigo_qr = bin2hex(random_bytes(16));
-                    $codigo_qr = $evento_idQR . $fecha_evento . $producto_id . $autoincrement;
+
+                    $codigo_qr = sprintf(
+                        '%04d%s%03d%06d%03d',
+                        1000 + $evento_id,
+                        $fechaDdmm,
+                        $item['producto_evento_id'],
+                        $detalle_venta_id,
+                        $i
+                    );
+
                     $stmtTicket->bind_param("iiss", $venta_id, $detalle_venta_id, $numero_ticket, $codigo_qr);
                     if (!$stmtTicket->execute()) {
                         throw new Exception("Error insertando ticket: " . $stmtTicket->error);
