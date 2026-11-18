@@ -1,12 +1,15 @@
 <?php
-class Ventas {
+class Ventas
+{
     private $conn;
 
-    public function __construct($conexion) {
+    public function __construct($conexion)
+    {
         $this->conn = $conexion;
     }
 
-    public function getContextoCaja($caja_numero, $evento_id = 1) {
+    public function getContextoCaja($caja_numero, $evento_id = 1)
+    {
         $stmt = $this->conn->prepare("SELECT c.id AS caja_id, c.nombre AS caja_nombre, c.impresora,
                                              cj.id AS cajero_id, cj.nombre AS cajero_nombre
                                       FROM cajas c
@@ -18,7 +21,8 @@ class Ventas {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    public function getProductoEvento($producto_evento_id, $evento_id = 1) {
+    public function getProductoEvento($producto_evento_id, $evento_id = 1)
+    {
         $stmt = $this->conn->prepare("SELECT pe.id, pe.precio, pe.etiqueta, p.nombre
                                       FROM productos_evento pe
                                       JOIN productos p ON pe.producto_id = p.id
@@ -29,7 +33,18 @@ class Ventas {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    public function obtenerOCrearProductoConsumicion($evento_id = 1) {
+    public function obtenerFechaEvento($eventoid)
+    {
+        $sql = "SELECT fecha FROM eventos WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $eventoid);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        return $resultado->fetch_assoc();
+    }
+
+    public function obtenerOCrearProductoConsumicion($evento_id = 1)
+    {
         $stmt = $this->conn->prepare("SELECT pe.id, pe.precio, pe.etiqueta, p.nombre
                                       FROM productos_evento pe
                                       JOIN productos p ON pe.producto_id = p.id
@@ -47,14 +62,14 @@ class Ventas {
         $prod = $stmtProd->get_result()->fetch_assoc();
 
         if ($prod) {
-            $producto_id = (int)$prod['id'];
+            $producto_id = (int) $prod['id'];
         } else {
             $stmtInsProd = $this->conn->prepare("INSERT INTO productos (categoria_id, nombre, img, activo)
                                                  VALUES (4, 'Consumición', 'imgs/consumicion.png', 1)");
             if (!$stmtInsProd->execute()) {
                 throw new Exception("No se pudo crear el producto Consumición: " . $stmtInsProd->error);
             }
-            $producto_id = (int)$this->conn->insert_id;
+            $producto_id = (int) $this->conn->insert_id;
         }
 
         $stmtInsPe = $this->conn->prepare("INSERT INTO productos_evento (evento_id, producto_id, precio, etiqueta, orden, disponible)
@@ -65,14 +80,15 @@ class Ventas {
         }
 
         return [
-            'id' => (int)$this->conn->insert_id,
+            'id' => (int) $this->conn->insert_id,
             'precio' => 0.00,
             'etiqueta' => 'CONSUMO',
             'nombre' => 'Consumición'
         ];
     }
 
-    public function registrarVentaCompleta($evento_id, $caja_id, $cajero_id, $metodo_pago, $itemsProcesados) {
+    public function registrarVentaCompleta($evento_id, $caja_id, $cajero_id, $metodo_pago, $itemsProcesados)
+    {
         $this->conn->begin_transaction();
 
         try {
@@ -87,7 +103,7 @@ class Ventas {
             if (!$stmtOp->execute()) {
                 throw new Exception("Error calculando operación: " . $stmtOp->error);
             }
-            $numero_operacion = (int)$stmtOp->get_result()->fetch_assoc()['siguiente'];
+            $numero_operacion = (int) $stmtOp->get_result()->fetch_assoc()['siguiente'];
 
             $total_venta = 0.00;
             $cantidad_tickets = 0;
@@ -115,7 +131,7 @@ class Ventas {
             if (!$stmtVenta->execute()) {
                 throw new Exception("Error insertando venta: " . $stmtVenta->error);
             }
-            $venta_id = (int)$this->conn->insert_id;
+            $venta_id = (int) $this->conn->insert_id;
 
             $stmtDetalle = $this->conn->prepare("INSERT INTO detalle_venta 
                 (venta_id, producto_evento_id, nombre_producto, etiqueta_ticket, cantidad, precio_unitario, subtotal)
@@ -155,17 +171,21 @@ class Ventas {
                 if (!$stmtDetalle->execute()) {
                     throw new Exception("Error insertando detalle ({$item['nombre_producto']}): " . $stmtDetalle->error);
                 }
-                $detalle_venta_id = (int)$this->conn->insert_id;
+                $detalle_venta_id = (int) $this->conn->insert_id;
 
                 for ($i = 0; $i < $item['cantidad']; $i++) {
                     $numero_ticket = sprintf("T%d-%d-%03d", $evento_id, $venta_id, $correlativo);
-                    $codigo_qr = bin2hex(random_bytes(16));
-
+                    $evento_idQR = 1000 + $evento_id;
+                    $fecha_evento = date('dm', strtotime($this->obtenerFechaEvento($evento_id)['fecha']));
+                    $producto_id = $item['producto_evento_id'];
+                    $autoincrement = $detalle_venta_id . $i;
+                    // $codigo_qr = bin2hex(random_bytes(16));
+                    $codigo_qr = $evento_idQR . $fecha_evento . $producto_id . $autoincrement;
                     $stmtTicket->bind_param("iiss", $venta_id, $detalle_venta_id, $numero_ticket, $codigo_qr);
                     if (!$stmtTicket->execute()) {
                         throw new Exception("Error insertando ticket: " . $stmtTicket->error);
                     }
-                    $ticket_id = (int)$this->conn->insert_id;
+                    $ticket_id = (int) $this->conn->insert_id;
 
                     $stmtImp->bind_param("iii", $venta_id, $ticket_id, $cajero_id);
                     if (!$stmtImp->execute()) {
@@ -200,7 +220,8 @@ class Ventas {
         }
     }
 
-    public function obtenerYRegistrarReimpresion($venta_id, $cajero_id) {
+    public function obtenerYRegistrarReimpresion($venta_id, $cajero_id)
+    {
         $stmt = $this->conn->prepare("SELECT t.id AS ticket_id, t.numero_ticket, t.codigo_qr,
                                              dv.etiqueta_ticket AS etiqueta, dv.precio_unitario AS precio,
                                              v.numero_operacion
@@ -222,13 +243,13 @@ class Ventas {
             VALUES (?, ?, ?, 'reimpresion', 1)");
 
         foreach ($filas as $f) {
-            $ticket_id = (int)$f['ticket_id'];
+            $ticket_id = (int) $f['ticket_id'];
             $stmtImp->bind_param("iii", $venta_id, $ticket_id, $cajero_id);
             $stmtImp->execute();
         }
 
         return [
-            'numero_operacion' => (int)$filas[0]['numero_operacion'],
+            'numero_operacion' => (int) $filas[0]['numero_operacion'],
             'tickets' => $filas
         ];
     }
