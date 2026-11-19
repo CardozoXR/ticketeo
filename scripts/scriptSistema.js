@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnNuevaVenta = document.getElementById("btn-nuevaventa");
   const btnBack = document.getElementById("btn-back");
   const btnReimprimirTickets = document.getElementById("btn-reimprimirtickets");
+  const adminjero = document.getElementById("btnAdminjero");
+  const cajeroNombre = document.getElementById("headerNombreCajero");
 
   const body2 = document.getElementById("body2");
   const body3 = document.getElementById("body3");
@@ -30,6 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  if (cajeroNombre && cajeroNombre.textContent.trim() === "Juan Cardozo") {
+    adminjero.style.display = "block";
+  }
+
 
   function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
     if (!modalTicketsOverlay || !contenedorTickets58mm || !datosVenta?.tickets) return;

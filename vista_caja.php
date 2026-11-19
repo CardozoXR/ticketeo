@@ -34,14 +34,14 @@ if (obtenerCajeroPorCaja($caja) === null) {
 
 <body>
     <header>
-        <div class="txt-header" id="btnPerfil" data-caja="<?php echo (int)$caja; ?>">
-            <div class="nombre-header">
+        <div class="txt-header">
+            <div class="nombre-header" id="btnPerfil" data-caja="<?php echo (int)$caja; ?>">
                 <span id="headerNombreCajero"><?php echo htmlspecialchars($nombre); ?></span>
                 <i class='bx bx-chevron-down'></i>
             </div>
             <div class="info-header">Caja <?php echo (int)$caja; ?> - After Banco 10.12</div>
         </div>
-        <div class="menu-header">
+        <div class="menu-header" id="btnAdminjero" style="display: none;">
             <i class='bx bx-menu'></i>
         </div>
     </header>

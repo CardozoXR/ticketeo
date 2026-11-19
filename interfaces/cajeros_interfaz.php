@@ -30,7 +30,7 @@ function obtenerInfoCajero(int $caja)
     return empty($resultado) ? null : $resultado[0];
 }
 
-function crearCajero(int $cajaid, string $nombre, string $pin, int $caja)
+function crearCajero(int $cajaid, string $nombre, string $pin)
 {
     $sp = new Cajeros();
     return $sp->agregarCajero($cajaid, $nombre, $pin, 1);

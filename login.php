@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Ingresá tu nombre y apellido.';
         } else {
             try {
-                crearCajero($caja, $nombre, $pin, $caja);
+                crearCajero($caja, $nombre, $pin);
                 iniciarSesionCajero($nombre, $caja);
             } catch (Throwable $e) {
                 $error = 'Esta caja ya fue registrada. Recargá la página.';
