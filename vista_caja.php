@@ -13,6 +13,10 @@ $caja = $_SESSION['caja'];
 include_once __DIR__ . "/interfaces/cajeros_interfaz.php";
 include_once __DIR__ . "/interfaces/categorias_interfaz.php";
 include_once __DIR__ . "/interfaces/productos_interfaz.php";
+include_once __DIR__ . "/interfaces/eventos_interfaz.php";
+
+$evento_id = 1;
+$infoEvento = obtenerEventoPorID($evento_id)['nombre'] . " " . date('d.m', strtotime(obtenerEventoPorID($evento_id)['fecha']));
 
 if (obtenerCajeroPorCaja($caja) === null) {
     header('Location: login.php?caja=' . $caja);
@@ -39,7 +43,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
                 <span id="headerNombreCajero"><?php echo htmlspecialchars($nombre); ?></span>
                 <i class='bx bx-chevron-down'></i>
             </div>
-            <div class="info-header">Caja <?php echo (int)$caja; ?> - After Banco 10.12</div>
+            <div class="info-header">Caja <?php echo (int)$caja; ?> - <?php echo $infoEvento ?></div>
         </div>
         <div class="menu-header" id="btnAdminjero" style="display: none;">
             <i class='bx bx-menu'></i>

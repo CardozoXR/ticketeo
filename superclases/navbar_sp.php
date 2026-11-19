@@ -37,11 +37,11 @@ class NavbarSP {
         }
 
         // Últimos 10 tickets
-        $stmtTickets = $this->conn->prepare("SELECT t.numero_ticket, v.total, v.id as venta_id 
-                                             FROM tickets t 
-                                             JOIN ventas v ON t.venta_id = v.id 
-                                             WHERE v.caja_id = ? AND t.estado = 'valido' 
-                                             ORDER BY t.creado DESC LIMIT 10");
+        $stmtTickets = $this->conn->prepare("SELECT v.id AS venta_id, v.numero_operacion, v.total, v.cantidad_tickets
+                                            FROM ventas v
+                                            WHERE v.caja_id = ? AND v.estado = 'completada'
+                                            ORDER BY v.id DESC
+                                            LIMIT 10");
         $stmtTickets->bind_param("i", $caja['caja_id']);
         $stmtTickets->execute();
         $ultimos_tickets = $stmtTickets->get_result()->fetch_all(MYSQLI_ASSOC);

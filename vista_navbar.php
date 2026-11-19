@@ -13,10 +13,17 @@
             <p><strong>Tickets emitidos:</strong> <?= $caja1['tickets_emitidos'] ?></p>
         </div>
         <div class="info-group">
-            <p><strong>Últimos 10 Tickets:</strong></p>
+            <p><strong>Últimas 10 Ventas:</strong></p>
             <ul class="ticket-list">
-                <?php foreach($caja1['ultimos_tickets'] as $t): ?>
-                    <li>#<?= htmlspecialchars($t['numero_ticket']) ?> - $<?= number_format($t['total'], 0, ',', '.') ?></li>
+                <?php foreach ($caja1['ultimos_tickets'] as $t): ?>
+                    <li>
+                        Op #<?= (int)$t['numero_operacion'] ?>
+                        (<?= (int)$t['cantidad_tickets'] ?> ticket<?= $t['cantidad_tickets'] > 1 ? 's' : '' ?>)
+                        - $<?= number_format($t['total'], 0, ',', '.') ?>
+                        <div class="reimprimirTickets" id="reimprimirTickets" data-op="<?= (int)$t['numero_operacion'] ?>">
+                            <i class='bx bx-printer'></i>
+                        </div>
+                    </li>
                 <?php endforeach; ?>
             </ul>
         </div>
@@ -40,10 +47,17 @@
             <p><strong>Tickets emitidos:</strong> <?= $caja2['tickets_emitidos'] ?></p>
         </div>
         <div class="info-group">
-            <p><strong>Últimos 10 Tickets:</strong></p>
+            <p><strong>Últimas 10 Ventas:</strong></p>
             <ul class="ticket-list">
-                <?php foreach($caja2['ultimos_tickets'] as $t): ?>
-                    <li>#<?= htmlspecialchars($t['numero_ticket']) ?> - $<?= number_format($t['total'], 0, ',', '.') ?></li>
+                <?php foreach ($caja2['ultimos_tickets'] as $t): ?>
+                    <li>
+                        Op #<?= (int)$t['numero_operacion'] ?>
+                        (<?= (int)$t['cantidad_tickets'] ?> ticket<?= $t['cantidad_tickets'] > 1 ? 's' : '' ?>)
+                        - $<?= number_format($t['total'], 0, ',', '.') ?>
+                        <div class="reimprimirTickets" id="reimprimirTickets" data-op="<?= (int)$t['numero_operacion'] ?>">
+                            <i class='bx bx-printer'></i>
+                        </div>
+                    </li>
                 <?php endforeach; ?>
             </ul>
         </div>
