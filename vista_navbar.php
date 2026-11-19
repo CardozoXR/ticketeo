@@ -3,8 +3,10 @@
     <?php if(isset($caja1) && $caja1): ?>
         <div class="info-group">
             <p><strong>Cajero:</strong> <span><?= htmlspecialchars($caja1['cajero_nombre']) ?></span></p>
-            <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja1['cajero_id'] ?>, 1)">Cambiar Nombre</button>
-            <button class="btn-accion" onclick="resetPin(<?= (int)$caja1['cajero_id'] ?>)">Restablecer PIN</button>
+            <div class="btn-navCajero" style="display: flex">
+                <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja1['cajero_id'] ?>, 1)" style="font-size:11px">Cambiar Nombre</button>
+                <button class="btn-accion" onclick="resetPin(<?= (int)$caja1['cajero_id'] ?>)" style="font-size:11px">Restablecer PIN</button>
+            </div>
         </div>
         <div class="info-group totales">
             <p><strong>Efectivo:</strong> $<?= number_format($caja1['efectivo'], 0, ',', '.') ?></p>
@@ -37,8 +39,10 @@
     <?php if(isset($caja2) && $caja2): ?>
          <div class="info-group">
             <p><strong>Cajero:</strong> <span><?= htmlspecialchars($caja2['cajero_nombre']) ?></span></p>
-            <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja2['cajero_id'] ?>, 2)">Cambiar Nombre</button>
-            <button class="btn-accion" onclick="resetPin(<?= (int)$caja2['cajero_id'] ?>)">Restablecer PIN</button>
+            <div class="btn-navCajero" style="display: flex">
+                <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja1['cajero_id'] ?>, 1)" style="font-size:11px">Cambiar Nombre</button>
+                <button class="btn-accion" onclick="resetPin(<?= (int)$caja1['cajero_id'] ?>)" style="font-size:11px">Restablecer PIN</button>
+            </div>
         </div>
         <div class="info-group totales">
             <p><strong>Efectivo:</strong> $<?= number_format($caja2['efectivo'], 0, ',', '.') ?></p>
