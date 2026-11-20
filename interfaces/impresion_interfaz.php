@@ -116,7 +116,7 @@ class FuncionesImpresion
 
             $rawTotal .= $INIT . $CENTER;
             $rawTotal .= $INVERT_ON . $BOLD_ON . "   " . $qrData . "   \n" . $BOLD_OFF . $INVERT_OFF . "\n";
-S            $rawTotal .= $BOLD_ON . $eventoNombre . "\n" . $BOLD_OFF;
+            $rawTotal .= $BOLD_ON . $eventoNombre . "\n" . $BOLD_OFF;
             $rawTotal .= "- - - - - - - - - - - -\n";
             $rawTotal .= $DOUBLE_SIZE . $BOLD_ON . "1x " . $etiqueta . "\n";
             $rawTotal .= $precioTxt . "\n" . $NORMAL_SIZE . $BOLD_OFF . "\n";
