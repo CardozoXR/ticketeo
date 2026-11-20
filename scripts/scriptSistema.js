@@ -33,10 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (cajeroNombre && cajeroNombre.textContent.trim() === "Juan Cardozo") {
+  if (adminjero && cajeroNombre && cajeroNombre.textContent.trim() === "Juan Cardozo") {
     adminjero.style.display = "block";
   }
-
 
   function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
     if (!modalTicketsOverlay || !contenedorTickets58mm || !datosVenta?.tickets) return;
@@ -64,12 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
       papel.className = "ticket-58mm";
       papel.innerHTML = `
         ${esReimpresion ? '<div class="tck58-reimp">*** REIMPRESION ***</div>' : ""}
-        <div class="tck58-evento">AFTER BANCO 10.12</div>
+        <div class="tck58-evento">${datosVenta.evento_nombre || "AFTER BANCO 10.12"}</div>
         <div class="tck58-linea">--------------------------------</div>
         <div class="tck58-etiqueta">${ticket.etiqueta}</div>
         <div class="tck58-precio">${precioTxt}</div>
         <div class="tck58-qr" id="qr58-${idx}"></div>
-        <div class="tck58-numero">${ticket.numero_ticket}</div>
+        <div class="tck58-numero">${ticket.codigo_qr}</div>
         <div class="tck58-linea">--------------------------------</div>
         <div class="tck58-meta">Op #${datosVenta.numero_operacion} - ${datosVenta.caja_nombre}</div>
         <div class="tck58-meta">Cajero: ${datosVenta.cajero_nombre}</div>
@@ -96,6 +95,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modalTicketsOverlay.style.display = "flex";
   }
+
+  window.mostrarPreviewTickets58mm = mostrarPreviewTickets58mm;
 
   btnCobrar.addEventListener("click", (e) => {
     e.preventDefault();
@@ -132,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnActivo.textContent = "Procesando...";
 
     try {
-      const response = await fetch("procesar_venta.php", {
+      const response = await fetch("endpoints/procesar_venta.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -219,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnReimprimirTickets.querySelector("p").textContent = "Reimprimiendo...";
 
     try {
-      const response = await fetch("procesar_venta.php", {
+      const response = await fetch("endpoints/procesar_venta.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

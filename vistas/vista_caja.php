@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $cajaRequerida = $cajaRequerida ?? 1;
 
 if (($_SESSION['caja'] ?? null) !== $cajaRequerida) {
@@ -7,20 +9,26 @@ if (($_SESSION['caja'] ?? null) !== $cajaRequerida) {
     exit;
 }
 
-$nombre = $_SESSION['nombre'];
-$caja = $_SESSION['caja'];
+require_once __DIR__ . "/../interfaces/cajeros_interfaz.php";
+require_once __DIR__ . "/../interfaces/categorias_interfaz.php";
+require_once __DIR__ . "/../interfaces/productos_interfaz.php";
+require_once __DIR__ . "/../interfaces/eventos_interfaz.php";
 
-include_once __DIR__ . "/interfaces/cajeros_interfaz.php";
-include_once __DIR__ . "/interfaces/categorias_interfaz.php";
-include_once __DIR__ . "/interfaces/productos_interfaz.php";
-include_once __DIR__ . "/interfaces/eventos_interfaz.php";
+$evento = obtenerEventoActivo();
+if (!$evento) {
+    exit("No hay evento activo configurado.");
+}
 
-$evento_id = 1;
-$infoEvento = obtenerEventoPorID($evento_id)['nombre'] . " " . date('d.m', strtotime(obtenerEventoPorID($evento_id)['fecha']));
+$evento_id = (int)$evento['id'];
+$_SESSION['evento_id'] = $evento_id;
 
-if (obtenerCajeroPorCaja($caja) === null) {
-    header('Location: login.php?caja=' . $caja);
+$nombre     = $_SESSION['nombre'];
+$caja       = (int)$_SESSION['caja'];
+$infoEvento = htmlspecialchars($evento['nombre']) . " " . date('d.m', strtotime($evento['fecha']));
+
+if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
     session_destroy();
+    header('Location: login.php?caja=' . $caja);
     exit;
 }
 ?>
@@ -32,6 +40,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ticketeo</title>
     <link rel="stylesheet" href="estilos/estilos.css">
+    <link rel="stylesheet" href="estilos/estilostickets.css">
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     <link rel="icon" href="imgs/ticketeo-icon.png" type="image/x-icon">
 </head>
@@ -39,20 +48,20 @@ if (obtenerCajeroPorCaja($caja) === null) {
 <body>
     <header>
         <div class="txt-header">
-            <div class="nombre-header" id="btnPerfil" data-caja="<?php echo (int)$caja; ?>">
+            <div class="nombre-header" id="btnPerfil" data-caja="<?php echo $caja; ?>">
                 <span id="headerNombreCajero"><?php echo htmlspecialchars($nombre); ?></span>
                 <i class='bx bx-chevron-down'></i>
             </div>
-            <div class="info-header">Caja <?php echo (int)$caja; ?> - <?php echo $infoEvento ?></div>
+            <div class="info-header">Caja <?php echo $caja; ?> - <?php echo $infoEvento; ?></div>
         </div>
-        <div class="menu-header" id="btnAdminjero" style="display: none;">
+        <div class="menu-header" id="btnAdminjero">
             <i class='bx bx-menu'></i>
         </div>
     </header>
 
     <div class="perfil-dropdown" id="perfilDropdown">
         <div id="contenedorPerfil">
-            <?php include "refresh_perfil.php"; ?>
+            <?php include __DIR__ . "/../endpoints/refresh_perfil.php"; ?>
         </div>
     </div>
 
@@ -71,7 +80,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
         </div>
 
         <div id="contenedorTabs">
-            <?php include "refresh_navbar.php"; ?>
+            <?php include __DIR__ . "/../endpoints/refresh_navbar.php"; ?>
         </div>
     </div>
 
@@ -95,7 +104,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
 
             <?php foreach (getCategorias() as $cat): ?>
                 <div class="all-elementos" id="all-elementos-<?php echo idCategoria($cat['nombre']); ?>" <?php echo classCat($cat['nombre']); ?>>
-                    <?php foreach (getProductos(1, $cat['id']) as $row): ?>
+                    <?php foreach (getProductos($evento_id, (int)$cat['id']) as $row): ?>
                         <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>"
                             data-precio="<?php echo $row['precio']; ?>">
                             <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
@@ -135,7 +144,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
 
             <p class="txt-cat" id="txt-cat-cortesia-medidas" style="display:none">Medidas</p>
             <div class="all-elementos" id="all-elementos-cortesias-medidas" style="display: none; margin-bottom: 10px;">
-                <?php foreach (getProductos(1, 1) as $row): ?>
+                <?php foreach (getProductos($evento_id, 1) as $row): ?>
                     <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
                         <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
                         <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
@@ -147,7 +156,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
             <p class="txt-cat" id="txt-cat-cortesia-botellas" style="display:none;">Botellas</p>
             <div class="all-elementos" id="all-elementos-cortesias-botellas"
                 style="display: none; margin-bottom: 10px;">
-                <?php foreach (getProductos(1, 2) as $row): ?>
+                <?php foreach (getProductos($evento_id, 2) as $row): ?>
                     <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
                         <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
                         <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>
@@ -158,7 +167,7 @@ if (obtenerCajeroPorCaja($caja) === null) {
 
             <p class="txt-cat" id="txt-cat-cortesia-varios" style="display:none">Varios</p>
             <div class="all-elementos" id="all-elementos-cortesias-varios" style="display: none; margin-bottom: 80px;">
-                <?php foreach (getProductos(1, 3) as $row): ?>
+                <?php foreach (getProductos($evento_id, 3) as $row): ?>
                     <div class="div-cat" data-id="<?php echo (int) $row['id']; ?>-free" data-precio="0">
                         <img src="<?php echo htmlspecialchars($row['img']); ?>" alt="">
                         <p class="elemento-titulo"><?php echo htmlspecialchars($row['nombre']); ?></p>

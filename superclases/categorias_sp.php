@@ -1,84 +1,55 @@
 <?php
+require_once __DIR__ . "/../conn/conn.php";
+
 class Categorias
 {
-    private $conn;
-    private $dbhost = "localhost";
-    private $dbuser = "root";
-    private $dbpass = "root";
-    private $dbname = "ticketeo";
+    private mysqli $conn;
 
-    function __construct()
+    public function __construct(?mysqli $conexion = null)
     {
-        $this->connect_db();
-    }
-    public function connect_db()
-    {
-        $this->conn = mysqli_connect($this->dbhost, $this->dbuser, $this->dbpass, $this->dbname);
-        if (mysqli_connect_error()) {
-            die("Conexión a la base de datos falló " . mysqli_connect_error() . mysqli_connect_errno());
-        }
+        $this->conn = $conexion ?? obtenerConexion();
     }
 
-    public function obtenerTodasLasCategorias()
+    public function obtenerTodasLasCategorias(): array
     {
-        $sql = "SELECT * FROM categorias";
-        $resultado = $this->conn->query($sql);
+        $resultado = $this->conn->query("SELECT * FROM categorias");
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function obtenerCategoriaPorID($idcategoria)
+    public function obtenerCategoriaPorID(int $idcategoria): ?array
     {
-        if ($idcategoria !== null && is_numeric($idcategoria) && $idcategoria > 0) {
-            $sql = "SELECT * FROM categorias WHERE id = $idcategoria";
-            $resultado = $this->conn->query($sql);
-            if ($resultado) {
-                if ($resultado->num_rows > 0) {
-                    return $resultado->fetch_assoc();
-                } else {
-                    return null;
-                }
-            } else {
-                echo "Error en la consulta SQL: " . $this->conn->error;
-                return null;
-            }
-        } else {
+        if ($idcategoria <= 0) {
             return null;
         }
+        $stmt = $this->conn->prepare("SELECT * FROM categorias WHERE id = ? LIMIT 1");
+        $stmt->bind_param("i", $idcategoria);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc() ?: null;
     }
 
-    public function obtenerCategoriaEnOrden()
+    public function obtenerCategoriaEnOrden(): array
     {
-        $sql = "SELECT * FROM categorias ORDER BY orden ASC, nombre ASC";
-        $resultado = $this->conn->query($sql);
-
-        if (!$resultado) {
-            echo "Error en la consulta SQL: " . $this->conn->error;
-            return [];
-        }
-
+        $resultado = $this->conn->query("SELECT * FROM categorias ORDER BY orden ASC, nombre ASC");
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function agregarCategoria($nombre, $orden)
+    public function agregarCategoria(string $nombre, int $orden): bool
     {
-        $sql = "INSERT INTO categorias (nombre, orden) VALUES (?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ss", $nombre, $orden);
+        $stmt = $this->conn->prepare("INSERT INTO categorias (nombre, orden) VALUES (?, ?)");
+        $stmt->bind_param("si", $nombre, $orden);
         return $stmt->execute();
     }
 
-    public function editarCategoria($idcategoria, $nombre, $orden)
+    public function editarCategoria(int $idcategoria, string $nombre, int $orden): bool
     {
-        $sql = "UPDATE categorias SET nombre = ?, orden = ? WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssi", $nombre, $orden, $idcategoria);
+        $stmt = $this->conn->prepare("UPDATE categorias SET nombre = ?, orden = ? WHERE id = ?");
+        $stmt->bind_param("sii", $nombre, $orden, $idcategoria);
         return $stmt->execute();
     }
 
-    public function eliminarCategoria($idcategoria)
+    public function eliminarCategoria(int $idcategoria): bool
     {
-        $sql = "DELETE FROM categorias WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare("DELETE FROM categorias WHERE id = ?");
         $stmt->bind_param("i", $idcategoria);
         return $stmt->execute();
     }

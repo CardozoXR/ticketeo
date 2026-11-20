@@ -1,15 +1,18 @@
 <?php
-include_once __DIR__ . "/../conn/conn.php";
-include_once __DIR__ . "/../superclases/tickets_sp.php";
+require_once __DIR__ . "/../superclases/tickets_sp.php";
 
-function obtenerTodosLosTickets()
+function obtenerTodosLosTickets(): array
 {
-    $sp = new Tickets();
-    return $sp->obtenerTodosLosTickets();
+    return (new Tickets())->obtenerTodosLosTickets();
 }
 
-function obtenerTicketsPorVenta($venta_id)
+function obtenerTicketsPorVenta(int $venta_id): array
 {
-    $sp = new Tickets();
-    return $sp->obtenerTicketsPorVenta($venta_id);
+    return (new Tickets())->obtenerTicketsPorVenta($venta_id);
 }
+
+function obtenerTicketsDetallePorVenta(int $venta_id): array
+{
+    return (new Tickets())->obtenerTicketsDetallePorVenta($venta_id);
+}
+?>

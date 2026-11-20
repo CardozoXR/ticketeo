@@ -1,48 +1,48 @@
 <?php
-class FuncionesImpresion {
+class FuncionesImpresion
+{
     // 1. true = vista previa en pantalla | false = imprime en impresora real
     public const MODO_PRUEBA = true;
 
     // 2. true = impresora común vía driver Windows | false = térmica 58mm ESC/POS directo
-    public const IMPRESORA_COMUN = true;
+    public const IMPRESORA_COMUN = false;
 
-    public static function imprimirTicketsVenta($nombreImpresora, $datosVenta) {
+    public static function imprimirTicketsVenta(?string $nombreImpresora, array $datosVenta): array
+    {
         if (empty($datosVenta['tickets'])) {
             return ["ok" => false, "error" => "No hay tickets para imprimir."];
         }
 
         if (self::MODO_PRUEBA) {
-            return [
-                "ok" => true,
-                "modo_prueba" => true
-            ];
+            return ["ok" => true, "modo_prueba" => true];
         }
 
-        if (empty($nombreImpresora)) {
-            return ["ok" => false, "error" => "Caja sin impresora asignada."];
+        if (empty($nombreImpresora) || !preg_match('/^[a-zA-Z0-9_\-\\\\. ]+$/', $nombreImpresora)) {
+            return ["ok" => false, "error" => "Nombre de impresora inválido o no asignado."];
         }
 
-        $fechaHora = date('d/m/Y H:i');
-        $rawTotal  = "";
+        $fechaHora    = date('d/m/Y H:i');
+        $eventoNombre = self::limpiarTexto(strtoupper($datosVenta['evento_nombre'] ?? 'AFTER BANCO'));
+        $rawTotal     = "";
 
         if (self::IMPRESORA_COMUN) {
             foreach ($datosVenta['tickets'] as $ticket) {
                 $esCortesia = ((float)$ticket['precio'] === 0.0);
                 $precioTxt  = $esCortesia
                     ? "CORTESIA"
-                    : "$" . number_format((float)$ticket['precio'], 0, ',', '.');
+                    : "$ " . number_format((float)$ticket['precio'], 2, '.', '');
 
                 $etiqueta = self::limpiarTexto(strtoupper($ticket['etiqueta']));
                 $cajaTxt  = self::limpiarTexto($datosVenta['caja_nombre']);
                 $cajTxt   = self::limpiarTexto($datosVenta['cajero_nombre']);
 
                 $rawTotal .= "================================\r\n";
-                $rawTotal .= "       AFTER BANCO 10.12        \r\n";
+                $rawTotal .= "  CODIGO: " . $ticket['codigo_qr'] . "\r\n";
+                $rawTotal .= "  EVENTO: " . $eventoNombre . "\r\n";
                 $rawTotal .= "--------------------------------\r\n";
-                $rawTotal .= "  PRODUCTO: " . $etiqueta . "\r\n";
-                $rawTotal .= "  VALOR:    " . $precioTxt . "\r\n";
-                $rawTotal .= "  TICKET:   " . $ticket['numero_ticket'] . "\r\n";
-                $rawTotal .= "  QR CODE:  " . $ticket['codigo_qr'] . "\r\n";
+                $rawTotal .= "  1x " . $etiqueta . "\r\n";
+                $rawTotal .= "  " . $precioTxt . "\r\n";
+                $rawTotal .= "  TICKET: " . $ticket['numero_ticket'] . "\r\n";
                 $rawTotal .= "--------------------------------\r\n";
                 $rawTotal .= "  Op #" . $datosVenta['numero_operacion'] . " - " . $cajaTxt . "\r\n";
                 $rawTotal .= "  Cajero: " . $cajTxt . " | " . $fechaHora . "\r\n";
@@ -57,7 +57,7 @@ class FuncionesImpresion {
             $archivoEscapado = str_replace("'", "''", $tmpFile);
 
             $psScript = "\$p = Get-Printer | Where-Object { \$_.ShareName -eq '{$nombreEscapado}' -or \$_.Name -eq '{$nombreEscapado}' } | Select-Object -First 1; "
-                      . "if (-not \$p) { Write-Error 'No se encontro impresora con nombre o recurso compartido {$nombreEscapado}'; exit 1 }; "
+                      . "if (-not \$p) { Write-Error 'No se encontro impresora {$nombreEscapado}'; exit 1 }; "
                       . "Get-Content -Path '{$archivoEscapado}' -Encoding UTF8 | Out-Printer -Name \$p.Name";
 
             $cmd = 'powershell -NoProfile -NonInteractive -Command "' . $psScript . '" 2>&1';
@@ -70,7 +70,7 @@ class FuncionesImpresion {
             if ($codigo !== 0) {
                 $detalleError = trim(implode(" ", $salida));
                 return [
-                    "ok" => false,
+                    "ok"    => false,
                     "error" => "Error driver Windows ({$nombreBuscado}): " . ($detalleError !== '' ? $detalleError : "código {$codigo}")
                 ];
             }
@@ -78,7 +78,7 @@ class FuncionesImpresion {
             return ["ok" => true, "modo_prueba" => false];
         }
 
-        // Formato binario ESC/POS nativo para impresoras térmicas de 58mm
+        // Impresión térmica directa 58mm ESC/POS
         $rutaImpresora = str_starts_with($nombreImpresora, '\\\\')
             ? $nombreImpresora
             : '\\\\localhost\\' . $nombreImpresora;
@@ -90,6 +90,8 @@ class FuncionesImpresion {
         $CENTER      = $ESC . "a\x01";
         $BOLD_ON     = $ESC . "E\x01";
         $BOLD_OFF    = $ESC . "E\x00";
+        $INVERT_ON   = $GS  . "B\x01";
+        $INVERT_OFF  = $GS  . "B\x00";
         $DOUBLE_SIZE = $GS  . "!\x11";
         $NORMAL_SIZE = $GS  . "!\x00";
         $CUT         = $GS  . "V\x41\x03";
@@ -98,7 +100,7 @@ class FuncionesImpresion {
             $esCortesia = ((float)$ticket['precio'] === 0.0);
             $precioTxt  = $esCortesia
                 ? "CORTESIA"
-                : "$" . number_format((float)$ticket['precio'], 0, ',', '.');
+                : "$ " . number_format((float)$ticket['precio'], 2, '.', '');
 
             $etiqueta = self::limpiarTexto(strtoupper($ticket['etiqueta']));
             $cajaTxt  = self::limpiarTexto($datosVenta['caja_nombre']);
@@ -114,16 +116,15 @@ class FuncionesImpresion {
                     . $GS . "(k\x03\x00\x31\x51\x30";
 
             $rawTotal .= $INIT . $CENTER;
-            $rawTotal .= $BOLD_ON . "AFTER BANCO 10.12\n" . $BOLD_OFF;
-            $rawTotal .= "--------------------------------\n";
-            $rawTotal .= $DOUBLE_SIZE . $BOLD_ON . $etiqueta . "\n" . $NORMAL_SIZE . $BOLD_OFF;
+            $rawTotal .= $INVERT_ON . $BOLD_ON . "  " . $qrData . "  \n" . $BOLD_OFF . $INVERT_OFF;
+            $rawTotal .= $BOLD_ON . $eventoNombre . "\n" . $BOLD_OFF;
+            $rawTotal .= "--------------------\n";
+            $rawTotal .= $DOUBLE_SIZE . $BOLD_ON . "1x " . $etiqueta . "\n" . $NORMAL_SIZE . $BOLD_OFF;
             $rawTotal .= $BOLD_ON . $precioTxt . "\n\n" . $BOLD_OFF;
             $rawTotal .= $qrCmd . "\n";
-            $rawTotal .= $ticket['numero_ticket'] . "\n";
-            $rawTotal .= "--------------------------------\n";
+            $rawTotal .= "--------------------\n";
             $rawTotal .= "Op #" . $datosVenta['numero_operacion'] . " - " . $cajaTxt . "\n";
-            $rawTotal .= "Cajero: " . $cajTxt . "\n";
-            $rawTotal .= $fechaHora . "\n\n\n";
+            $rawTotal .= "Cajero: " . $cajTxt . " | " . $fechaHora . "\n\n\n";
             $rawTotal .= $CUT;
         }
 
@@ -135,7 +136,7 @@ class FuncionesImpresion {
 
         if (!$enviado) {
             return [
-                "ok" => false,
+                "ok"    => false,
                 "error" => "No se pudo comunicar con la impresora ({$rutaImpresora})."
             ];
         }
@@ -143,7 +144,8 @@ class FuncionesImpresion {
         return ["ok" => true, "modo_prueba" => false];
     }
 
-    private static function limpiarTexto($texto) {
+    private static function limpiarTexto(string $texto): string
+    {
         return strtr($texto, [
             'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N',
             'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ñ' => 'n',

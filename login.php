@@ -8,34 +8,21 @@ if (!$caja) {
     exit('Caja inválida');
 }
 
-$cajero = obtenerInfoCajero($caja);
-$modoLogin = ($cajero !== null);
-$error = null;
+$estado    = obtenerDatosPantallaLogin($caja);
+$error     = $estado['error'];
+$cajero    = $estado['cajero'];
+$modoLogin = $estado['modoLogin'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pin = $_POST['pin'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
+    $pin    = $_POST['pin'] ?? '';
+    $nombre = $_POST['nombre'] ?? '';
+    $res    = procesarAccesoCaja($caja, $pin, $nombre);
 
-    if (!preg_match('/^\d{4}$/', $pin)) {
-        $error = 'El PIN debe tener 4 dígitos.';
-    } elseif ($modoLogin) {
-        if ($pin === $cajero['pin']) {
-            iniciarSesionCajero($cajero['nombre'], $caja);
-        } else {
-            $error = 'PIN incorrecto.';
-        }
-    } else {
-        $nombre = trim($_POST['nombre'] ?? '');
-        if ($nombre === '') {
-            $error = 'Ingresá tu nombre y apellido.';
-        } else {
-            try {
-                crearCajero($caja, $nombre, $pin);
-                iniciarSesionCajero($nombre, $caja);
-            } catch (Throwable $e) {
-                $error = 'Esta caja ya fue registrada. Recargá la página.';
-            }
-        }
+    if ($res['ok']) {
+        header("Location: caja{$caja}.php");
+        exit;
     }
+    $error = $res['error'];
 }
 ?>
 <!DOCTYPE html>
@@ -57,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <p class="user-name"><?= htmlspecialchars($cajero['nombre']) ?></p>
           <p>Ingresá tu PIN para abrir la caja</p>
         <?php else: ?>
-          <h1>INICIAR CAJA <?= $caja ?></h1>
+          <h1>INICIAR CAJA <?= (int)$caja ?></h1>
           <p>Configurá los datos para iniciar a operar</p>
         <?php endif; ?>
       </div>

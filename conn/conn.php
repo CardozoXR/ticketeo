@@ -1,13 +1,20 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "ticketeo";
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+function obtenerConexion(): mysqli
+{
+    static $conn = null;
 
-if ($conn->connect_error) {
-    die("Conexión fallida: " . $conn->connect_error);
+    if ($conn === null) {$servername = "localhost";
+        $username   = "root";
+        $password   = "root";
+        $dbname     = "ticketeo";
+
+        $conn = new mysqli($servername, $username,$password, $dbname);$conn->set_charset("utf8mb4");
+    }
+
+    return $conn;
 }
-?>
 
+$conn = obtenerConexion();
+?>

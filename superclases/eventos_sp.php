@@ -1,79 +1,132 @@
 <?php
+require_once __DIR__ . "/../conn/conn.php";
+
 class Eventos
 {
-    private $conn;
-    private $dbhost = "localhost";
-    private $dbuser = "root";
-    private $dbpass = "root";
-    private $dbname = "ticketeo";
+    private mysqli $conn;
 
-    function __construct()
+    public function __construct(?mysqli $conexion = null)
     {
-        $this->connect_db();
+        $this->conn = $conexion ?? obtenerConexion();
     }
-    public function connect_db()
+
+    private function obtenerColumnaEstado(): ?string
     {
-        $this->conn = mysqli_connect($this->dbhost, $this->dbuser, $this->dbpass, $this->dbname);
-        if (mysqli_connect_error()) {
-            die("Conexión a la base de datos falló " . mysqli_connect_error() . mysqli_connect_errno());
+        static $columna = false;
+        if ($columna !== false) {
+            return $columna;
         }
+
+        $res = $this->conn->query("SHOW COLUMNS FROM eventos");
+        $campos = array_column($res->fetch_all(MYSQLI_ASSOC), 'Field');
+
+        if (in_array('activo', $campos, true)) {
+            $columna = 'activo';
+        } elseif (in_array('estado', $campos, true)) {
+            $columna = 'estado';
+        } else {
+            $columna = null;
+        }
+
+        return $columna;
     }
 
-    public function obtenerEventos()
+    public function obtenerEventos(): array
     {
-        $sql = "SELECT * FROM eventos";
-        $resultado = $this->conn->query($sql);
+        $resultado = $this->conn->query("SELECT * FROM eventos ORDER BY fecha DESC, id DESC");
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function obtenerEventosPorFecha($fecha)
+    public function obtenerEventosPorFecha(string $fecha): array
     {
-        $sql = "SELECT * FROM eventos WHERE fecha = ?";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare("SELECT * FROM eventos WHERE fecha = ?");
         $stmt->bind_param("s", $fecha);
         $stmt->execute();
-        $resultado = $stmt->get_result();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function obtenerEventosActivos(): array
+    {
+        $col = $this->obtenerColumnaEstado();
+
+        if ($col === 'activo') {
+            $resultado = $this->conn->query("SELECT * FROM eventos WHERE activo = 1 ORDER BY id DESC");
+            return $resultado->fetch_all(MYSQLI_ASSOC);
+        }
+
+        if ($col === 'estado') {
+            $resultado = $this->conn->query("SELECT * FROM eventos WHERE estado IN (1, '1', 'activo') ORDER BY id DESC");
+            return $resultado->fetch_all(MYSQLI_ASSOC);
+        }
+
+        $resultado = $this->conn->query("SELECT * FROM eventos ORDER BY id DESC");
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function obtenerEventosActivos()
+    public function obtenerEventoActivo(): ?array
     {
-        $sql = "SELECT * FROM eventos WHERE activo = 1";
-        $resultado = $this->conn->query($sql);
-        return $resultado->fetch_all(MYSQLI_ASSOC);
+        $col = $this->obtenerColumnaEstado();
+        $evento = null;
+
+        if ($col === 'activo') {
+            $res = $this->conn->query("SELECT * FROM eventos WHERE activo = 1 ORDER BY id DESC LIMIT 1");
+            $evento = $res->fetch_assoc() ?: null;
+        } elseif ($col === 'estado') {
+            $res = $this->conn->query("SELECT * FROM eventos WHERE estado IN (1, '1', 'activo') ORDER BY id DESC LIMIT 1");
+            $evento = $res->fetch_assoc() ?: null;
+        }
+
+        if (!$evento) {
+            $res = $this->conn->query("SELECT * FROM eventos ORDER BY id DESC LIMIT 1");
+            $evento = $res->fetch_assoc() ?: null;
+        }
+
+        return $evento;
     }
 
-    public function obtenerEventoPorID($eventoid)
+    public function obtenerEventoPorID(int $eventoid): ?array
     {
-        $sql = "SELECT * FROM eventos WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $eventoid);
+        $stmt = $this->conn->prepare("SELECT * FROM eventos WHERE id = ? LIMIT 1");
+        $stmt->bind_param("i", $eventoid);
         $stmt->execute();
-        $resultado = $stmt->get_result();
-        return $resultado->fetch_assoc();
+        return $stmt->get_result()->fetch_assoc() ?: null;
     }
 
-    public function agregarEvento($nombre, $fecha, $logo, $estado)
+    public function agregarEvento(string $nombre, string $fecha, string $logo, $estado): bool
     {
-        $sql = "INSERT INTO eventos (nombre, fecha, logo, activo) VALUES (?, ?, ?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssss", $nombre, $fecha, $logo, $estado);
+        $col = $this->obtenerColumnaEstado();
+
+        if ($col !== null) {
+            $stmt = $this->conn->prepare("INSERT INTO eventos (nombre, fecha, logo, {$col}) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $nombre, $fecha, $logo, $estado);
+            return $stmt->execute();
+        }
+
+        $stmt = $this->conn->prepare("INSERT INTO eventos (nombre, fecha, logo) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $nombre, $fecha, $logo);
         return $stmt->execute();
     }
 
-    public function editarEvento($eventoid, $nombre, $fecha, $logo, $estado)
+    public function editarEvento(int $eventoid, string $nombre, string $fecha, string $logo, $estado): bool
     {
-        $sql = "UPDATE eventos SET nombre = ?, fecha = ?, logo = ?, activo = ? WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssss", $nombre, $fecha, $logo, $estado, $eventoid);
+        $col = $this->obtenerColumnaEstado();
+
+        if ($col !== null) {
+            $stmt = $this->conn->prepare("UPDATE eventos SET nombre = ?, fecha = ?, logo = ?, {$col} = ? WHERE id = ?");
+            $stmt->bind_param("ssssi", $nombre, $fecha, $logo, $estado, $eventoid);
+            return $stmt->execute();
+        }
+
+        $stmt = $this->conn->prepare("UPDATE eventos SET nombre = ?, fecha = ?, logo = ? WHERE id = ?");
+        $stmt->bind_param("sssi", $nombre, $fecha, $logo, $eventoid);
         return $stmt->execute();
     }
 
-    public function eliminarEvento($eventoid)
+    public function eliminarEvento(int $eventoid): bool
     {
-        $sql = "DELETE FROM eventos WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $eventoid);
+        $stmt = $this->conn->prepare("DELETE FROM eventos WHERE id = ?");
+        $stmt->bind_param("i", $eventoid);
         return $stmt->execute();
     }
 }
+?>

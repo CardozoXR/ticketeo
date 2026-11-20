@@ -1,28 +1,42 @@
 <?php
 require_once __DIR__ . "/../superclases/ventas_sp.php";
-require_once __DIR__ . "/../funciones_impresion.php";
+require_once __DIR__ . "/eventos_interfaz.php";
+require_once __DIR__ . "/caja_interfaz.php";
+require_once __DIR__ . "/productos_interfaz.php";
+require_once __DIR__ . "/tickets_interfaz.php";
+require_once __DIR__ . "/registroImpresiones_interfaz.php";
+require_once __DIR__ . "/impresion_interfaz.php";
 
-class FuncionesVentas {
-    private $modelo;
+class FuncionesVentas
+{
+    private Ventas $modelo;
 
-    public function __construct($conexion) {
+    public function __construct(?mysqli $conexion = null)
+    {
         $this->modelo = new Ventas($conexion);
     }
 
-    public function procesarCobro($caja_numero, $metodo_pago, $itemsCarrito, $evento_id = 1) {
-        if (!in_array($metodo_pago, ['efectivo', 'tarjeta'], true)) {
+    public function procesarCobro(int $cajaNumero, string $metodoPago, array $itemsCarrito, ?int $eventoId = null): array
+    {
+        if (!in_array($metodoPago, ['efectivo', 'tarjeta'], true)) {
             return ["status" => "error", "message" => "Método de pago no válido."];
         }
 
-        if (!is_array($itemsCarrito) || count($itemsCarrito) === 0) {
+        if (count($itemsCarrito) === 0) {
             return ["status" => "error", "message" => "El carrito está vacío."];
         }
 
-        $contexto = $this->modelo->getContextoCaja((int)$caja_numero, (int)$evento_id);
+        $evento = $eventoId ? obtenerEventoPorID($eventoId) : obtenerEventoActivo();
+        if (!$evento) {
+            return ["status" => "error", "message" => "No hay ningún evento activo."];
+        }
+        $eventoIdReal = (int)$evento['id'];
+
+        $contexto = obtenerContextoCaja($cajaNumero, $eventoIdReal);
         if (!$contexto) {
             return [
-                "status" => "error",
-                "message" => "No se encontró caja o cajero activo en BD para la Caja #{$caja_numero}."
+                "status"  => "error",
+                "message" => "No se encontró caja o cajero activo para la Caja #{$cajaNumero}."
             ];
         }
 
@@ -30,53 +44,55 @@ class FuncionesVentas {
 
         try {
             foreach ($itemsCarrito as $rawItem) {
-                $rawId = (string)($rawItem['id'] ?? '');
+                $rawId    = (string)($rawItem['id'] ?? '');
                 $cantidad = (int)($rawItem['cantidad'] ?? 0);
 
-                if ($cantidad <= 0 || !preg_match('/^(\d+)/', $rawId, $matches)) {
+                if ($cantidad <= 0 || $cantidad > 200 || !preg_match('/^(\d+)/', $rawId, $matches)) {
                     continue;
                 }
 
-                $producto_evento_id = (int)$matches[1];
-                $esCortesia = str_ends_with($rawId, '-free');
+                $productoEventoId = (int)$matches[1];
+                $esCortesia       = str_ends_with($rawId, '-free');
 
                 if (str_starts_with($rawId, '26x')) {
-                    $prodDB = $this->modelo->obtenerOCrearProductoConsumicion((int)$evento_id);
+                    $prodDB = obtenerProductoConsumicionEvento($eventoIdReal);
                 } else {
-                    $prodDB = $this->modelo->getProductoEvento($producto_evento_id, (int)$evento_id);
+                    $prodDB = obtenerProductoEventoParaVenta($productoEventoId, $eventoIdReal);
                 }
 
                 if (!$prodDB) {
                     return [
-                        "status" => "error",
-                        "message" => "El producto #{$producto_evento_id} no existe para este evento."
+                        "status"  => "error",
+                        "message" => "El producto #{$productoEventoId} no está disponible para este evento."
                     ];
                 }
 
-                $idRealEvento = (int)$prodDB['id'];
+                $idRealEvento   = (int)$prodDB['id'];
+                $idRealProducto = (int)$prodDB['producto_id'];
 
                 if ($esCortesia) {
-                    $precio_unitario = 0.00;
+                    $precioUnitario = 0.00;
                     if (strtoupper($prodDB['etiqueta']) === 'CONSUMO') {
-                        $nombre_producto = $prodDB['nombre'] . ' (Cortesía)';
-                        $etiqueta_ticket = 'CONSUMO';
+                        $nombreProducto = $prodDB['nombre'] . ' (Cortesía)';
+                        $etiquetaTicket = 'CONSUMO';
                     } else {
-                        $nombre_producto = 'Cortesía ' . $prodDB['nombre'];
-                        $etiqueta_ticket = 'CORTESIA ' . $prodDB['etiqueta'];
+                        $nombreProducto = 'Cortesía ' . $prodDB['nombre'];
+                        $etiquetaTicket = 'CORTESIA ' . $prodDB['etiqueta'];
                     }
                 } else {
-                    $precio_unitario = (float)$prodDB['precio'];
-                    $nombre_producto = $prodDB['nombre'];
-                    $etiqueta_ticket = $prodDB['etiqueta'];
+                    $precioUnitario = (float)$prodDB['precio'];
+                    $nombreProducto = $prodDB['nombre'];
+                    $etiquetaTicket = $prodDB['etiqueta'];
                 }
 
                 $itemsProcesados[] = [
                     'producto_evento_id' => $idRealEvento,
-                    'nombre_producto' => $nombre_producto,
-                    'etiqueta_ticket' => $etiqueta_ticket,
-                    'cantidad' => $cantidad,
-                    'precio_unitario' => $precio_unitario,
-                    'subtotal' => $precio_unitario * $cantidad
+                    'producto_id'        => $idRealProducto,
+                    'nombre_producto'    => $nombreProducto,
+                    'etiqueta_ticket'    => $etiquetaTicket,
+                    'cantidad'           => $cantidad,
+                    'precio_unitario'    => $precioUnitario,
+                    'subtotal'           => $precioUnitario * $cantidad
                 ];
             }
 
@@ -85,74 +101,91 @@ class FuncionesVentas {
             }
 
             $resultado = $this->modelo->registrarVentaCompleta(
-                (int)$evento_id,
+                $eventoIdReal,
+                $evento['fecha'],
                 (int)$contexto['caja_id'],
                 (int)$contexto['cajero_id'],
-                $metodo_pago,
+                $metodoPago,
                 $itemsProcesados
             );
 
             $datosImpresion = [
-                "caja_nombre" => $contexto['caja_nombre'],
-                "cajero_nombre" => $contexto['cajero_nombre'],
+                "evento_nombre"    => $evento['nombre'],
+                "caja_nombre"      => $contexto['caja_nombre'],
+                "cajero_nombre"    => $contexto['cajero_nombre'],
                 "numero_operacion" => $resultado['numero_operacion'],
-                "tickets" => $resultado['tickets']
+                "tickets"          => $resultado['tickets']
             ];
 
             $impresion = FuncionesImpresion::imprimirTicketsVenta($contexto['impresora'], $datosImpresion);
 
             return [
-                "status" => "success",
-                "caja_nombre" => $contexto['caja_nombre'],
-                "cajero_nombre" => $contexto['cajero_nombre'],
-                "venta_id" => $resultado['venta_id'],
+                "status"           => "success",
+                "evento_nombre"    => $evento['nombre'],
+                "caja_nombre"      => $contexto['caja_nombre'],
+                "cajero_nombre"    => $contexto['cajero_nombre'],
+                "venta_id"         => $resultado['venta_id'],
                 "numero_operacion" => $resultado['numero_operacion'],
-                "metodo_pago" => $resultado['metodo_pago'],
-                "total" => $resultado['total'],
+                "metodo_pago"      => $resultado['metodo_pago'],
+                "total"            => $resultado['total'],
                 "cantidad_tickets" => $resultado['cantidad_tickets'],
-                "tickets" => $resultado['tickets'],
-                "impresion" => $impresion
+                "tickets"          => $resultado['tickets'],
+                "impresion"        => $impresion
             ];
         } catch (Throwable $e) {
+            error_log("Error en procesarCobro: " . $e->getMessage());
             return [
-                "status" => "error",
-                "message" => $e->getMessage()
+                "status"  => "error",
+                "message" => "No se pudo registrar la venta. Intentá nuevamente."
             ];
         }
     }
 
-    public function reimprimirVenta($caja_numero, $venta_id, $evento_id = 1) {
-        if ($venta_id <= 0) {
+    public function reimprimirVenta(int $cajaNumero, int $ventaId, ?int $eventoId = null): array
+    {
+        if ($ventaId <= 0) {
             return ["status" => "error", "message" => "ID de venta inválido."];
         }
 
-        $contexto = $this->modelo->getContextoCaja((int)$caja_numero, (int)$evento_id);
+        $evento = $eventoId ? obtenerEventoPorID($eventoId) : obtenerEventoActivo();
+        if (!$evento) {
+            return ["status" => "error", "message" => "Evento activo no encontrado."];
+        }
+
+        $contexto = obtenerContextoCaja($cajaNumero, (int)$evento['id']);
         if (!$contexto) {
             return ["status" => "error", "message" => "Cajero activo no encontrado."];
         }
 
-        $datos = $this->modelo->obtenerYRegistrarReimpresion((int)$venta_id, (int)$contexto['cajero_id']);
-        if (!$datos) {
+        $tickets = obtenerTicketsDetallePorVenta($ventaId);
+        if (empty($tickets)) {
             return ["status" => "error", "message" => "No se encontraron tickets válidos para reimprimir."];
         }
 
-        $datosImpresion = [
-            "caja_nombre" => $contexto['caja_nombre'],
-            "cajero_nombre" => $contexto['cajero_nombre'],
-            "numero_operacion" => $datos['numero_operacion'],
-            "tickets" => $datos['tickets']
+        foreach ($tickets as $t) {
+            agregarReimpresion($ventaId, (int)$t['ticket_id'], (int)$contexto['cajero_id'], 1);
+        }
+
+        $numeroOperacion = (int)$tickets[0]['numero_operacion'];
+        $datosImpresion  = [
+            "evento_nombre"    => $evento['nombre'],
+            "caja_nombre"      => $contexto['caja_nombre'],
+            "cajero_nombre"    => $contexto['cajero_nombre'],
+            "numero_operacion" => $numeroOperacion,
+            "tickets"          => $tickets
         ];
 
         $impresion = FuncionesImpresion::imprimirTicketsVenta($contexto['impresora'], $datosImpresion);
 
         return [
-            "status" => $impresion['ok'] ? "success" : "error",
-            "message" => $impresion['error'] ?? "Tickets reimpresos.",
-            "caja_nombre" => $contexto['caja_nombre'],
-            "cajero_nombre" => $contexto['cajero_nombre'],
-            "numero_operacion" => $datos['numero_operacion'],
-            "tickets" => $datos['tickets'],
-            "impresion" => $impresion
+            "status"           => $impresion['ok'] ? "success" : "error",
+            "message"          => $impresion['error'] ?? "Tickets reimpresos.",
+            "evento_nombre"    => $evento['nombre'],
+            "caja_nombre"      => $contexto['caja_nombre'],
+            "cajero_nombre"    => $contexto['cajero_nombre'],
+            "numero_operacion" => $numeroOperacion,
+            "tickets"          => $tickets,
+            "impresion"        => $impresion
         ];
     }
 }

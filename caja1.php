@@ -1,4 +1,4 @@
 <?php
 $cajaRequerida = 1;
-require_once "vista_caja.php";
+require_once __DIR__ . "/vistas/vista_caja.php";
 ?>

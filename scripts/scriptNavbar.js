@@ -30,11 +30,14 @@ function actualizarPanelLateral() {
     tabBtnActivo = document.getElementById("btnTab3");
   }
 
-  fetch("refresh_navbar.php")
+  fetch("endpoints/refresh_navbar.php")
     .then((response) => response.text())
     .then((html) => {
-      document.getElementById("contenedorTabs").innerHTML = html;
-      openTab({ currentTarget: tabBtnActivo }, tabActiva);
+      const contenedor = document.getElementById("contenedorTabs");
+      if (contenedor) {
+        contenedor.innerHTML = html;
+        openTab({ currentTarget: tabBtnActivo }, tabActiva);
+      }
     })
     .catch((error) => console.error("Error al actualizar el panel:", error));
 }
@@ -43,7 +46,7 @@ function actualizarPanelPerfil() {
   const contenedor = document.getElementById("contenedorPerfil");
   if (!contenedor) return;
 
-  fetch("refresh_perfil.php")
+  fetch("endpoints/refresh_perfil.php")
     .then((response) => response.text())
     .then((html) => {
       contenedor.innerHTML = html;
@@ -76,7 +79,7 @@ function cambiarNombre(cajeroId, cajaNum) {
   formData.append("cajero_id", cajeroId);
   formData.append("nombre", nuevoNombre.trim());
 
-  fetch("acciones_navbar.php", { method: "POST", body: formData })
+  fetch("endpoints/acciones_navbar.php", { method: "POST", body: formData })
     .then((res) => res.json())
     .then((data) => {
       if (data.status === "success") {
@@ -103,7 +106,7 @@ function resetPin(cajeroId) {
   formData.append("cajero_id", cajeroId);
   formData.append("pin", nuevoPin.trim());
 
-  fetch("acciones_navbar.php", { method: "POST", body: formData })
+  fetch("endpoints/acciones_navbar.php", { method: "POST", body: formData })
     .then((res) => res.json())
     .then((data) => {
       if (data.status === "success") {
@@ -123,12 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnPerfil = document.getElementById("btnPerfil");
   const perfilDropdown = document.getElementById("perfilDropdown");
+  const contenedorTabs = document.getElementById("contenedorTabs");
 
   if (btnPerfil && perfilDropdown) {
     btnPerfil.addEventListener("click", (e) => {
       e.stopPropagation();
-      sidebar.classList.remove("open");
-      overlay.style.display = "none";
+      sidebar?.classList.remove("open");
+      if (overlay) overlay.style.display = "none";
       perfilDropdown.classList.toggle("open");
     });
 
@@ -141,17 +145,47 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  menuIcon.addEventListener("click", () => {
+  menuIcon?.addEventListener("click", () => {
     if (perfilDropdown) perfilDropdown.classList.remove("open");
-    sidebar.classList.add("open");
-    overlay.style.display = "block";
+    sidebar?.classList.add("open");
+    if (overlay) overlay.style.display = "block";
   });
 
   function closeMenu() {
-    sidebar.classList.remove("open");
-    overlay.style.display = "none";
+    sidebar?.classList.remove("open");
+    if (overlay) overlay.style.display = "none";
   }
 
-  closeBtn.addEventListener("click", closeMenu);
-  overlay.addEventListener("click", closeMenu);
+  closeBtn?.addEventListener("click", closeMenu);
+  overlay?.addEventListener("click", closeMenu);
+
+  // Reimpresión desde el listado de últimas 10 ventas del panel lateral
+  contenedorTabs?.addEventListener("click", async (e) => {
+    const btnReimprimir = e.target.closest(".reimprimirTickets");
+    if (!btnReimprimir) return;
+
+    const ventaId = Number(btnReimprimir.dataset.ventaId || 0);
+    if (!ventaId) return;
+
+    try {
+      const response = await fetch("endpoints/procesar_venta.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accion: "reimprimir",
+          venta_id: ventaId,
+        }),
+      });
+      const data = await response.json();
+      if (data.status === "success") {
+        if (data.impresion?.modo_prueba && typeof window.mostrarPreviewTickets58mm === "function") {
+          window.mostrarPreviewTickets58mm(data, true);
+        }
+      } else {
+        alert(data.message || "No se pudo reimprimir la venta.");
+      }
+    } catch (error) {
+      console.error("Error al reimprimir desde panel:", error);
+    }
+  });
 });

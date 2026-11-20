@@ -1,46 +1,47 @@
 <?php
-include_once __DIR__ . "/../conn/conn.php";
-include_once __DIR__ . "/../superclases/eventos_sp.php";
+require_once __DIR__ . "/../superclases/eventos_sp.php";
 
-function obtenerEventos()
+function obtenerEventos(): array
 {
-    $sp = new Eventos();
-    return $sp->obtenerEventos();
+    return (new Eventos())->obtenerEventos();
 }
 
-function obtenerEventosPorFecha($fecha)
+function obtenerEventosPorFecha(string $fecha): array
 {
-    $sp = new Eventos();
-    return $sp->obtenerEventosPorFecha($fecha);
+    return (new Eventos())->obtenerEventosPorFecha($fecha);
 }
 
-function obtenerEventosActivos()
+function obtenerEventosActivos(): array
 {
-    $sp = new Eventos();
-    return $sp->obtenerEventosActivos();
+    return (new Eventos())->obtenerEventosActivos();
 }
 
-function obtenerEventoPorID($eventoid)
+function obtenerEventoActivo(): ?array
 {
-    $sp = new Eventos();
-    return $sp->obtenerEventoPorID($eventoid);
+    static $evento = null;
+    if ($evento === null) {
+        $evento = (new Eventos())->obtenerEventoActivo();
+    }
+    return $evento;
 }
 
-function agregarEvento($nombre, $fecha, $logo, $estado)
+function obtenerEventoPorID(int $eventoid): ?array
 {
-    $sp = new Eventos();
-    return $sp->agregarEvento($nombre, $fecha, $logo, $estado);
+    return (new Eventos())->obtenerEventoPorID($eventoid);
 }
 
-function editarEvento($eventoid, $nombre, $fecha, $logo, $estado)
+function agregarEvento(string $nombre, string $fecha, string $logo, int $estado): bool
 {
-    $sp = new Eventos();
-    return $sp->editarEvento($eventoid, $nombre, $fecha, $logo, $estado);
+    return (new Eventos())->agregarEvento($nombre, $fecha, $logo, $estado);
 }
 
-function eliminarEvento($eventoid)
+function editarEvento(int $eventoid, string $nombre, string $fecha, string $logo, int $estado): bool
 {
-    $sp = new Eventos();
-    return $sp->eliminarEvento($eventoid);
+    return (new Eventos())->editarEvento($eventoid, $nombre, $fecha, $logo, $estado);
 }
 
+function eliminarEvento(int $eventoid): bool
+{
+    return (new Eventos())->eliminarEvento($eventoid);
+}
+?>

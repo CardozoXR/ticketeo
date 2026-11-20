@@ -1,78 +1,84 @@
 <?php
+require_once __DIR__ . "/../conn/conn.php";
+
 class Cajas
 {
-    private $conn;
-    private $dbhost = "localhost";
-    private $dbuser = "root";
-    private $dbpass = "root";
-    private $dbname = "ticketeo";
+    private mysqli $conn;
 
-    function __construct()
+    public function __construct(?mysqli $conexion = null)
     {
-        $this->connect_db();
-    }
-    public function connect_db()
-    {
-        $this->conn = mysqli_connect($this->dbhost, $this->dbuser, $this->dbpass, $this->dbname);
-        if (mysqli_connect_error()) {
-            die("Conexión a la base de datos falló " . mysqli_connect_error() . mysqli_connect_errno());
-        }
+        $this->conn = $conexion ?? obtenerConexion();
     }
 
-    public function obtenerTodasLasCajas()
+    public function obtenerTodasLasCajas(): array
     {
-        $sql = "SELECT * FROM cajas";
-        $resultado = $this->conn->query($sql);
+        $resultado = $this->conn->query("SELECT * FROM cajas ORDER BY evento_id DESC, numero ASC");
         return $resultado->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function obtenerCajaPorID($cajaid)
+    public function obtenerCajaPorID(int $cajaid): ?array
     {
-        $sql = "SELECT * FROM cajas WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $cajaid);
+        $stmt = $this->conn->prepare("SELECT * FROM cajas WHERE id = ? LIMIT 1");
+        $stmt->bind_param("i", $cajaid);
         $stmt->execute();
-        $resultado = $stmt->get_result();
-        return $resultado->fetch_assoc();
+        return $stmt->get_result()->fetch_assoc() ?: null;
     }
 
-    public function obtenerCajasPorEvento($eventoid)
+    public function obtenerCajaPorNumero(int $numeroCaja, int $eventoId): ?array
     {
-        $sql = "SELECT * FROM cajas WHERE evento_id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $eventoid);
+        $stmt = $this->conn->prepare("SELECT * FROM cajas WHERE numero = ? AND evento_id = ? AND activo = 1 LIMIT 1");
+        $stmt->bind_param("ii", $numeroCaja, $eventoId);
         $stmt->execute();
-        $resultado = $stmt->get_result();
-        return $resultado->fetch_all(MYSQLI_ASSOC);
+        return $stmt->get_result()->fetch_assoc() ?: null;
     }
 
-    public function obtenerCajasActivas(){
-        $sql = "SELECT * FROM cajas WHERE activo = 1";
-        $resultado = $this->conn->query($sql);
-        return $resultado->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function agregarCaja($eventoid, $numero, $nombre, $impresora, $activo)
+    public function obtenerContextoCaja(int $numeroCaja, int $eventoId): ?array
     {
-        $sql = "INSERT INTO cajas (evento_id, numero, nombre, impresora, activo) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssss", $eventoid, $numero, $nombre, $impresora, $activo);
+        $stmt = $this->conn->prepare("SELECT c.id AS caja_id, c.numero AS caja_numero, c.nombre AS caja_nombre, c.impresora,
+                                             cj.id AS cajero_id, cj.nombre AS cajero_nombre
+                                      FROM cajas c
+                                      JOIN cajeros cj ON c.id = cj.caja_id AND cj.activo = 1
+                                      WHERE c.numero = ? AND c.evento_id = ? AND c.activo = 1
+                                      ORDER BY cj.id DESC
+                                      LIMIT 1");
+        $stmt->bind_param("ii", $numeroCaja, $eventoId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc() ?: null;
+    }
+
+    public function obtenerCajasPorEvento(int $eventoid): array
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM cajas WHERE evento_id = ? ORDER BY numero ASC");
+        $stmt->bind_param("i", $eventoid);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function obtenerCajasActivas(): array
+    {
+        $resultado = $this->conn->query("SELECT * FROM cajas WHERE activo = 1 ORDER BY numero ASC");
+        return $resultado->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function agregarCaja(int $eventoid, int $numero, string $nombre, string $impresora, int $activo): bool
+    {
+        $stmt = $this->conn->prepare("INSERT INTO cajas (evento_id, numero, nombre, impresora, activo) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("iissi", $eventoid, $numero, $nombre, $impresora, $activo);
         return $stmt->execute();
     }
 
-    public function editarCaja($cajaid, $eventoid, $numero, $nombre, $impresora, $activo)
+    public function editarCaja(int $cajaid, int $eventoid, int $numero, string $nombre, string $impresora, int $activo): bool
     {
-        $sql = "UPDATE cajas SET evento_id = ?, numero = ?, nombre = ?, impresora = ?, activo = ? WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssssss", $eventoid, $numero, $nombre, $impresora, $activo, $cajaid);
+        $stmt = $this->conn->prepare("UPDATE cajas SET evento_id = ?, numero = ?, nombre = ?, impresora = ?, activo = ? WHERE id = ?");
+        $stmt->bind_param("iissii", $eventoid, $numero, $nombre, $impresora, $activo, $cajaid);
         return $stmt->execute();
     }
 
-    public function eliminarCaja($cajaid)
+    public function eliminarCaja(int $cajaid): bool
     {
-        $sql = "DELETE FROM cajas WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $cajaid);
+        $stmt = $this->conn->prepare("DELETE FROM cajas WHERE id = ?");
+        $stmt->bind_param("i", $cajaid);
         return $stmt->execute();
     }
 }
+?>

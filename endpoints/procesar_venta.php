@@ -13,12 +13,7 @@ try {
         exit;
     }
 
-    include_once __DIR__ . "/conn/conn.php";
-    require_once __DIR__ . "/interfaces/ventas_interfaz.php";
-
-    if (!isset($conn) || !$conn) {
-        throw new Exception("No hay conexión con la base de datos.");
-    }
+    require_once __DIR__ . "/../interfaces/ventas_interfaz.php";
 
     $payload = json_decode(file_get_contents('php://input'), true);
     if (!is_array($payload)) {
@@ -28,23 +23,24 @@ try {
         exit;
     }
 
-    $controlador = new FuncionesVentas($conn);
-    $accion = $payload['accion'] ?? 'registrar';
-    $cajaActual = (int)$_SESSION['caja'];
+    $controlador = new FuncionesVentas();
+    $accion      = $payload['accion'] ?? 'registrar';
+    $cajaActual  = (int)$_SESSION['caja'];
+    $eventoId    = isset($_SESSION['evento_id']) ? (int)$_SESSION['evento_id'] : null;
 
     if ($accion === 'reimprimir') {
-        $venta_id = (int)($payload['venta_id'] ?? 0);
-        $respuesta = $controlador->reimprimirVenta($cajaActual, $venta_id, 1);
+        $venta_id  = (int)($payload['venta_id'] ?? 0);
+        $respuesta = $controlador->reimprimirVenta($cajaActual, $venta_id, $eventoId);
     } else {
-        $metodo_pago = $payload['metodo_pago'] ?? '';
-        $items = $payload['items'] ?? [];
-        $respuesta = $controlador->procesarCobro($cajaActual, $metodo_pago, $items, 1);
+        $metodo_pago = (string)($payload['metodo_pago'] ?? '');
+        $items       = is_array($payload['items'] ?? null) ? $payload['items'] : [];
+        $respuesta   = $controlador->procesarCobro($cajaActual, $metodo_pago, $items, $eventoId);
     }
 
     $json = json_encode($respuesta, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     if ($json === false) {
         $json = json_encode([
-            "status" => "error",
+            "status"  => "error",
             "message" => "Error codificando JSON: " . json_last_error_msg()
         ]);
     }
@@ -52,11 +48,12 @@ try {
     ob_end_clean();
     echo $json;
 } catch (Throwable $e) {
+    error_log("Error en endpoints/procesar_venta.php: " . $e->getMessage());
     ob_end_clean();
     http_response_code(500);
     echo json_encode([
-        "status" => "error",
-        "message" => "Error interno: " . $e->getMessage()
+        "status"  => "error",
+        "message" => "Error interno del servidor."
     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
 }
 ?>
