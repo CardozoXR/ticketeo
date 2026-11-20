@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Righteous&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+
+.ticket {
+  width: 58mm;
+  background: #ffffff;
+  color: #000000;
+  font-family: "Roboto Mono", monospace;
+  padding: 2.67mm;
+  margin: 0 auto 14px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  font-weight: 500;
+}
+
+.codigohead {
+  background: #000000;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 2px;
+  margin-bottom: 20px;
+}
+
+.codigohead p{
+  margin: 5px 0;
+}
+
+.logoevento {
+  max-width: 120px;
+  height: auto;
+  margin: 2px auto 8px;
+  display: block;
+}
+
+.nombreevento {
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.separador {
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+}
+
+.separador p{
+  margin: 10px 0;
+}
+
+.infocajero{
+  font-weight: bold;
+}
+
+.txtinfo{
+  margin: 5px 0;
+}
+
+.inforesumen{
+  margin: 0;
+}
+
+.tituloticket, .txttotal {
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  margin: 0;
+}
+
+.infototal{
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.infototal p{
+    margin: 3px;
+}
+
+.divuno{
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.infogeneral p{
+  font-size: 12px;
+  margin: 0;
+}
+
+.infogeneral{
+  text-align: left;
+}
+
+.imgfooter{
+  width: 100%;
+  margin-top: 15px;
+}
+
+img{
+  width: 100%;
+}
