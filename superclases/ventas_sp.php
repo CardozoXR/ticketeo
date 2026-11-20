@@ -21,8 +21,7 @@ class Ventas
         $this->conn->begin_transaction();
 
         try {
-            $prefijoEvento = 1000 + $eventoId;
-            $fechaDdMm     = date('dm', strtotime($fechaEvento) ?: time());
+            $fechaDdMm = date('dm', strtotime($fechaEvento) ?: time());
 
             $stmtOp = $this->conn->prepare("SELECT COALESCE(MAX(numero_operacion), 0) + 1 AS siguiente
                                             FROM ventas
@@ -94,13 +93,14 @@ class Ventas
                     $stmtTicket->execute();
                     $ticketId = (int)$this->conn->insert_id;
 
-                    // Formato QR: (1000 + evento_id) + ddmm + producto_id (2 dígitos) + ticket_id
+                    // Formato QR: (1000 + evento_id) + ddmm + producto_evento_id (3 dígitos) + detalle_venta_id (6 dígitos) + i (3 dígitos)
                     $codigoQr = sprintf(
-                        "%d%s%02d%d",
-                        $prefijoEvento,
+                        '%04d%s%03d%06d%03d',
+                        1000 + $eventoId,
                         $fechaDdMm,
-                        (int)$item['producto_id'],
-                        $ticketId
+                        (int)$item['producto_evento_id'],
+                        $detalleVentaId,
+                        $i
                     );
 
                     $stmtUpdateQr->bind_param("si", $codigoQr, $ticketId);
