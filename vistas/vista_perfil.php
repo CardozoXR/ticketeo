@@ -42,6 +42,6 @@ $ticketsCaja = $perfilCaja['tickets_emitidos'] ?? 0;
     </button> -->
 
     <a href="logout.php?caja=<?= $cajaNum ?>" class="btn-perfil btn-perfil-salir">
-        <i class='bx bx-log-out'></i> Cerrar turno
+        <i class='bx bx-log-out'></i> Cerrar caja
     </a>
 </div>
