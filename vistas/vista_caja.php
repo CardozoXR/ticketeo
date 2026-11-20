@@ -54,7 +54,7 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
             </div>
             <div class="info-header">Caja <?php echo $caja; ?> - <?php echo $infoEvento; ?></div>
         </div>
-        <div class="menu-header" id="btnAdminjero">
+        <div class="menu-header" id="btnAdminjero" style="display: none;">
             <i class='bx bx-menu'></i>
         </div>
     </header>
@@ -237,5 +237,85 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
     <script src="scripts/scriptSistema.js"></script>
     <script src="scripts/scriptProductos.js"></script>
     <script src="scripts/scriptNavbar.js"></script>
+<script>
+    async function calcularTamanoTicket() {
+    const ticket = document.querySelector(".ticket-58mm");
+
+    if (!ticket) return;
+
+    // Esperar a que carguen las fuentes
+    await document.fonts.ready;
+
+    // Esperar a que carguen las imágenes
+    await Promise.all(
+        Array.from(ticket.querySelectorAll("img")).map(img => {
+            if (img.complete) return Promise.resolve();
+
+            return new Promise(resolve => {
+                img.addEventListener("load", resolve, { once: true });
+                img.addEventListener("error", resolve, { once: true });
+            });
+        })
+    );
+
+    // Obtener la altura del ticket en píxeles
+    const alturaPx = ticket.getBoundingClientRect().height;
+
+    // Convertir píxeles CSS a milímetros
+    const alturaMm = alturaPx * 25.4 / 96;
+
+    // Agregar 3 mm de seguridad
+    const alturaFinal = Math.ceil(alturaMm + 3);
+
+    // Crear o actualizar el tamaño de impresión
+    let estilo = document.getElementById("pagina-dinamica");
+
+    if (!estilo) {
+        estilo = document.createElement("style");
+        estilo.id = "pagina-dinamica";
+        document.head.appendChild(estilo);
+    }
+
+    estilo.textContent = `
+        @page {
+            size: 58mm ${alturaFinal}mm;
+            margin: 0;
+        }
+    `;
+
+    console.log(
+        `Ticket configurado: 58mm x ${alturaFinal}mm`
+    );
+}
+
+// Calcular automáticamente al cargar
+window.addEventListener("load", calcularTamanoTicket);
+
+// Recalcular antes de imprimir con Ctrl + P
+window.addEventListener("beforeprint", () => {
+    const ticket = document.querySelector(".ticket");
+    if (!ticket) return;
+
+    const alturaMm =
+        ticket.getBoundingClientRect().height * 25.4 / 96;
+
+    const alturaFinal = Math.ceil(alturaMm + 3);
+
+    let estilo = document.getElementById("pagina-dinamica");
+
+    if (!estilo) {
+        estilo = document.createElement("style");
+        estilo.id = "pagina-dinamica";
+        document.head.appendChild(estilo);
+    }
+
+    estilo.textContent = `
+        @page {
+            size: 58mm ${alturaFinal}mm;
+            margin: 0;
+        }
+    `;
+});
+</script>
 </body>
 </html>

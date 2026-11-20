@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="estilos/estilostickets.css">
+    <link rel="stylesheet" href="../estilos/estilostickets.css">
     <title>Document</title>
 </head>
 <body>
@@ -13,7 +13,7 @@
             <p>514210123</p>
         </div>
         <div class="evento">
-            <img src="imgs/logo2.png" alt="" class="logoevento">
+            <img src="../imgs/logo2.png" alt="" class="logoevento">
             <p class="nombreevento">AFTER BANCO</p>
         </div>
         <div class="separador">

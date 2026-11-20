@@ -910,7 +910,7 @@ input[type="text"]:focus {
     padding: 12px 8px 8px 8px;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-    border-top: 2px dashed #999;
+    /* border-top: 2px dashed #999; */
 }
 
 .tck58-reimp {
@@ -928,7 +928,7 @@ input[type="text"]:focus {
 .tck58-linea {
     font-size: 10px;
     letter-spacing: -0.5px;
-    margin: 4px 0;
+    margin-top: 4px;
     overflow: hidden;
     white-space: nowrap;
 }

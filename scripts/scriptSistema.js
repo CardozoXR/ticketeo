@@ -62,17 +62,14 @@ function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
       const papel = document.createElement("div");
       papel.className = "ticket-58mm";
       papel.innerHTML = `
-        ${esReimpresion ? '<div class="tck58-reimp">*** REIMPRESION ***</div>' : ""}
         <div class="tck58-topbar">${ticket.codigo_qr}</div>
         <img src="imgs/logo2.png" alt="Logo" class="tck58-logo" onerror="this.style.display='none'">
-        <div class="tck58-evento">${eventoTitulo}</div>
-        <div class="tck58-linea">- - - - - - - - - - - - -</div>
+        <div class="tck58-evento">${eventoTitulo} 10.12</div>
+        <div class="tck58-linea">-------------------------</div>
         <div class="tck58-etiqueta">1x ${String(ticket.etiqueta).toUpperCase()}</div>
         <div class="tck58-precio">${precioTxt}</div>
         <div class="tck58-qr" id="qr58-${idx}"></div>
-        <div class="tck58-numero">${ticket.codigo_qr}</div>
-        <div class="tck58-linea">- - - - - - - - - - - - -</div>
-        <div class="tck58-corte">✂ - - - - CORTE DE PAPEL - - - -</div>
+        <div class="tck58-linea">-------------------------</div>
       `;
 
       contenedorTickets58mm.appendChild(papel);

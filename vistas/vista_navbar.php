@@ -42,8 +42,10 @@
         <div class="info-group">
             <p><strong>Cajero:</strong> <span><?= htmlspecialchars($caja2['cajero_nombre']) ?></span></p>
             <?php if (!empty($caja2['cajero_id'])): ?>
-                <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja2['cajero_id'] ?>, 2)">Cambiar Nombre</button>
-                <button class="btn-accion" onclick="resetPin(<?= (int)$caja2['cajero_id'] ?>)">Restablecer PIN</button>
+                <div class="btn-navCajero" style="display: flex">
+                    <button class="btn-accion" onclick="cambiarNombre(<?= (int)$caja1['cajero_id'] ?>, 1)" style="font-size:11px">Cambiar Nombre</button>
+                    <button class="btn-accion" onclick="resetPin(<?= (int)$caja1['cajero_id'] ?>)" style="font-size:11px">Restablecer PIN</button>
+                </div>
             <?php endif; ?>
         </div>
         <div class="info-group totales">

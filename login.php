@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $modoLogin ? 'INICIAR SESIÓN' : 'REGISTRO' ?> - TicketeoUY</title>
+    <title><?= $modoLogin ? 'INICIAR SESIÓN' : 'REGISTRO' ?> - Ticketeo</title>
     <link rel="stylesheet" href="estilos/estilos.css">
 </head>
 <body>
