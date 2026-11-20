@@ -37,14 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
     adminjero.style.display = "block";
   }
 
-  function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
+function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
     if (!modalTicketsOverlay || !contenedorTickets58mm || !datosVenta?.tickets) return;
-
-    const ahora = new Date();
-    const fechaHora =
-      ahora.toLocaleDateString("es-UY") +
-      " " +
-      ahora.toLocaleTimeString("es-UY", { hour: "2-digit", minute: "2-digit" });
 
     const totalTck = datosVenta.tickets.length;
     modalTicketsTitulo.textContent = esReimpresion
@@ -53,26 +47,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     contenedorTickets58mm.innerHTML = "";
 
+    const eventoTitulo = (datosVenta.evento_nombre || "AFTER BANCO").toUpperCase();
+
     datosVenta.tickets.forEach((ticket, idx) => {
       const esCortesia = Number(ticket.precio) === 0;
       const precioTxt = esCortesia
         ? "CORTESIA"
-        : "$" + Number(ticket.precio).toLocaleString("es-UY");
+        : "$ " +
+          Number(ticket.precio).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
 
       const papel = document.createElement("div");
       papel.className = "ticket-58mm";
       papel.innerHTML = `
         ${esReimpresion ? '<div class="tck58-reimp">*** REIMPRESION ***</div>' : ""}
-        <div class="tck58-evento">${datosVenta.evento_nombre || "AFTER BANCO 10.12"}</div>
-        <div class="tck58-linea">--------------------------------</div>
-        <div class="tck58-etiqueta">${ticket.etiqueta}</div>
+        <div class="tck58-topbar">${ticket.codigo_qr}</div>
+        <img src="imgs/logo2.png" alt="Logo" class="tck58-logo" onerror="this.style.display='none'">
+        <div class="tck58-evento">${eventoTitulo}</div>
+        <div class="tck58-linea">- - - - - - - - - - - - -</div>
+        <div class="tck58-etiqueta">1x ${String(ticket.etiqueta).toUpperCase()}</div>
         <div class="tck58-precio">${precioTxt}</div>
         <div class="tck58-qr" id="qr58-${idx}"></div>
         <div class="tck58-numero">${ticket.codigo_qr}</div>
-        <div class="tck58-linea">--------------------------------</div>
-        <div class="tck58-meta">Op #${datosVenta.numero_operacion} - ${datosVenta.caja_nombre}</div>
-        <div class="tck58-meta">Cajero: ${datosVenta.cajero_nombre}</div>
-        <div class="tck58-meta">${fechaHora}</div>
+        <div class="tck58-linea">- - - - - - - - - - - - -</div>
         <div class="tck58-corte">✂ - - - - CORTE DE PAPEL - - - -</div>
       `;
 
@@ -82,14 +81,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof QRCode !== "undefined") {
         new QRCode(qrContainer, {
           text: ticket.codigo_qr,
-          width: 115,
-          height: 115,
+          width: 120,
+          height: 120,
           colorDark: "#000000",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M,
         });
       } else {
-        qrContainer.innerHTML = `<div class="tck58-qr-fallback">QR: ${ticket.codigo_qr.slice(0, 14)}...</div>`;
+        qrContainer.innerHTML = `<div class="tck58-qr-fallback">QR: ${ticket.codigo_qr}</div>`;
       }
     });
 

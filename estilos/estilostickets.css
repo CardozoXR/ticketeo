@@ -1,99 +1,85 @@
-@page {
-    size: 58mm 120mm;
-    margin: 0;
+/* === ESTILO TICKET 58MM === */
+.ticket-58mm {
+  width: 245px;
+  background: #ffffff;
+  color: #000000;
+  font-family: "Consolas", "Courier New", monospace;
+  padding: 14px 14px 12px;
+  margin: 0 auto 14px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
-*{
-    box-sizing: border-box;
-    margin: 0;
+.tck58-reimp {
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 6px;
 }
 
-body{
-    background-color: rgb(223, 222, 222);
-    font-family: 'VCR OSD Mono', monospace;
+.tck58-topbar {
+  background: #000000;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 5px 6px;
+  margin-bottom: 8px;
 }
 
-.ticket{
-    width: 58mm;
-    padding: 5mm;
-    background-color: white;
-    text-align: center;
-    margin: 0 auto;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+.tck58-logo {
+  max-width: 140px;
+  height: auto;
+  margin: 2px auto 8px;
+  display: block;
 }
 
-.codigohead{
-    background-color: black;
-    color: white;
-    text-align: center;
+.tck58-evento {
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
-.evento img{
-    width: 50%;
-    margin-top: 10px;
+.tck58-linea {
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.evento p{
-    font-weight: bold;
-    font-size: 18px;
-    margin: 5px;
+.tck58-etiqueta {
+  text-transform: none;
+  font-size: 16.5px;
+  font-weight: bold;
+  margin: 8px 0 4px;
 }
 
-.infoevento{
-    font-size: 12px;
-    font-weight: bold;
+.tck58-precio {
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.consumo{
-    font-size: 18px;
-    font-weight: bold;
+.tck58-qr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 4px auto;
 }
 
-.precioconsumo{
-    font-size: 20px;
-    margin-bottom: 5px;
+.tck58-numero {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  margin: 4px 0 8px;
 }
 
-.barcode img{
-    width: 80%;
-}
-
-.infogeneral{
-    font-size: 10px;
-    text-align: left;
-}
-
-.inforesponsabilidad{
-    font-size: 8px;
-    font-weight: bold;
-    text-align: left;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-.dev img{
-    width: 100%;
-    margin-top: 5px;
-}
-
-@media print {
-    html, body {
-        width: 58mm;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
-    }
-
-    .ticket {
-        width: 58mm !important;
-        height: auto !important;
-        margin: 0 !important;
-        padding: 5mm !important;
-        break-inside: avoid;
-    }
-
-    .no-print {
-        display: none !important;
-    }
+.tck58-corte {
+  font-size: 10px;
+  color: #777777;
+  margin-top: 12px;
+  padding-top: 6px;
+  border-top: 1px dashed #bbbbbb;
 }

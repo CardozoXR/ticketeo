@@ -102,10 +102,9 @@ class FuncionesImpresion
                 ? "CORTESIA"
                 : "$ " . number_format((float)$ticket['precio'], 2, '.', '');
 
-            $etiqueta = self::limpiarTexto(strtoupper($ticket['etiqueta']));
-            $cajaTxt  = self::limpiarTexto($datosVenta['caja_nombre']);
-            $cajTxt   = self::limpiarTexto($datosVenta['cajero_nombre']);
-            $qrData   = $ticket['codigo_qr'];
+            $etiqueta  = self::limpiarTexto(strtoupper($ticket['etiqueta']));
+            $numTicket = (string)$ticket['ticket_id'];
+            $qrData    = $ticket['codigo_qr'];
 
             $qrLen  = strlen($qrData) + 3;
             $lenBin = pack('v', $qrLen);
@@ -116,15 +115,14 @@ class FuncionesImpresion
                     . $GS . "(k\x03\x00\x31\x51\x30";
 
             $rawTotal .= $INIT . $CENTER;
-            $rawTotal .= $INVERT_ON . $BOLD_ON . "  " . $qrData . "  \n" . $BOLD_OFF . $INVERT_OFF;
-            $rawTotal .= $BOLD_ON . $eventoNombre . "\n" . $BOLD_OFF;
-            $rawTotal .= "--------------------\n";
-            $rawTotal .= $DOUBLE_SIZE . $BOLD_ON . "1x " . $etiqueta . "\n" . $NORMAL_SIZE . $BOLD_OFF;
-            $rawTotal .= $BOLD_ON . $precioTxt . "\n\n" . $BOLD_OFF;
+            $rawTotal .= $INVERT_ON . $BOLD_ON . "   " . $qrData . "   \n" . $BOLD_OFF . $INVERT_OFF . "\n";
+S            $rawTotal .= $BOLD_ON . $eventoNombre . "\n" . $BOLD_OFF;
+            $rawTotal .= "- - - - - - - - - - - -\n";
+            $rawTotal .= $DOUBLE_SIZE . $BOLD_ON . "1x " . $etiqueta . "\n";
+            $rawTotal .= $precioTxt . "\n" . $NORMAL_SIZE . $BOLD_OFF . "\n";
             $rawTotal .= $qrCmd . "\n";
-            $rawTotal .= "--------------------\n";
-            $rawTotal .= "Op #" . $datosVenta['numero_operacion'] . " - " . $cajaTxt . "\n";
-            $rawTotal .= "Cajero: " . $cajTxt . " | " . $fechaHora . "\n\n\n";
+            $rawTotal .= $BOLD_ON . $qrData . "\n" . $BOLD_OFF;
+            $rawTotal .= "- - - - - - - - - - - -\n\n\n";
             $rawTotal .= $CUT;
         }
 
