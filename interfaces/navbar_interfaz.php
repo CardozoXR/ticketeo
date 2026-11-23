@@ -89,15 +89,16 @@ class FuncionesNavbar
         $datos      = $this->modelo->obtenerDatosResumenImpresion($eventoReal, $cajaFiltroId);
         $ev         = $datos['evento'];
 
-        $nombreEvento = $ev['nombre'] ?? 'After Banco';
-        $fechaHoyRaw  = date('Y-m-d');
+        $nombreEvento = $ev['nombre'] ?? 'Evento';
+        $fechaHoyRaw  = $ev['fecha'] ?? '00.00';
         $ddMm         = date('d.m', strtotime($fechaHoyRaw));
+        $fechaEventoDMY = date('d/m/Y', strtotime($fechaHoyRaw));
         $fechaHoyFmt  = date('d/m/Y');
 
         $infoEvento = array_values(array_filter([
             $ev['ciudad'] ?? 'MONTEVIDEO',
             $ev['lugar'] ?? ($ev['ubicacion'] ?? ''),
-            'DÍA ' . $fechaHoyFmt,
+            'DÍA ' . $fechaEventoDMY,
             !empty($ev['hora_apertura']) ? 'PUERTA APERTURA ' . substr($ev['hora_apertura'], 0, 5) : ''
         ]));
 

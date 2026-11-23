@@ -26,7 +26,7 @@ class FuncionesImpresion
         }
 
         $fechaHora    = date('d/m/Y H:i');
-        $eventoNombre = self::limpiarTexto(strtoupper($datosVenta['evento_nombre'] ?? 'AFTER BANCO'));
+        $eventoNombre = self::limpiarTexto(strtoupper($datosVenta['evento_nombre'] ?? 'Evento'));
         $rawTotal     = "";
 
         if (self::IMPRESORA_COMUN) {
@@ -48,7 +48,7 @@ class FuncionesImpresion
                 $rawTotal .= "  TICKET: " . $ticket['numero_ticket'] . "\r\n";
                 $rawTotal .= "--------------------------------\r\n";
                 $rawTotal .= "  Op #" . $datosVenta['numero_operacion'] . " - " . $cajaTxt . "\r\n";
-                $rawTotal .= "  Cajero: " . $cajTxt . " | " . $fechaHora . "\r\n";
+                $rawTotal .= "  Cajero: " . $cajaTxt . " | " . $fechaHora . "\r\n";
                 $rawTotal .= "================================\r\n\r\n";
             }
 

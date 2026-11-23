@@ -47,7 +47,7 @@ function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
 
     contenedorTickets58mm.innerHTML = "";
 
-    const eventoTitulo = (datosVenta.evento_nombre || "AFTER BANCO").toUpperCase();
+    const eventoTitulo = (datosVenta.evento_nombre || "EVENTO").toUpperCase();
 
     datosVenta.tickets.forEach((ticket, idx) => {
       const esCortesia = Number(ticket.precio) === 0;

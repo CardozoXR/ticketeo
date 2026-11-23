@@ -300,7 +300,7 @@ function mostrarPreviewResumen58mm(resumen) {
 
     cuerpoResumenHtml = `
       ${bloquesCajas}
-      <div class="separador"><p>===================</p></div>
+      <div class="separador"><p>------------------</p></div>
       ${renderSeccionTotales(
         "GENERAL VENTAS",
         resumen.ventas,

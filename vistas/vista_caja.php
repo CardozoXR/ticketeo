@@ -15,12 +15,6 @@ require_once __DIR__ . "/../interfaces/productos_interfaz.php";
 require_once __DIR__ . "/../interfaces/eventos_interfaz.php";
 require_once __DIR__ . "/../interfaces/navbar_interfaz.php";
 
-$navbarCtrl = new FuncionesNavbar();
-$nombreCajeroActual = $navbarCtrl->sincronizarNombreSesion(
-    (int)($_SESSION['caja'] ?? 0),
-    isset($_SESSION['evento_id']) ? (int)$_SESSION['evento_id'] : null
-);
-
 $evento = obtenerEventoActivo();
 if (!$evento) {
     exit("No hay evento activo configurado.");
@@ -29,15 +23,18 @@ if (!$evento) {
 $evento_id = (int)$evento['id'];
 $_SESSION['evento_id'] = $evento_id;
 
-$nombre     = $_SESSION['nombre'];
 $caja       = (int)$_SESSION['caja'];
 $infoEvento = htmlspecialchars($evento['nombre']) . " " . date('d.m', strtotime($evento['fecha']));
 
-if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
+$cajero = obtenerCajeroActivoPorNumeroCaja($caja, $evento_id);
+
+if ($cajero === null) {
     session_destroy();
     header('Location: login.php?caja=' . $caja);
     exit;
 }
+
+$nombreCajero = $cajero['nombre'];
 ?>
 <!DOCTYPE html>
 <html lang="es-UY">
@@ -57,7 +54,7 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
     <header>
         <div class="txt-header">
             <div class="nombre-header" id="btnPerfil" data-caja="<?php echo $caja; ?>">
-                <span id="headerNombreCajero"><?= htmlspecialchars($_SESSION['nombre'] ?? '') ?></span>
+                <span id="headerNombreCajero"><?php echo $nombreCajero ?></span>
                 <i class='bx bx-chevron-down'></i>
             </div>
             <div class="info-header">Caja <?php echo $caja; ?> - <?php echo $infoEvento; ?></div>
@@ -75,7 +72,7 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <div class="sidebar-menu" id="sidebarMenu">
+    <div class="sidebar-menu" id="sidebarMenu" style="box-shadow: -6px 0px 15px 5px rgba(0, 0, 0, 0.2);">
         <div class="sidebar-header">
             <h2>Panel de Control</h2>
             <i class='bx bx-x' id="closeSidebar"></i>

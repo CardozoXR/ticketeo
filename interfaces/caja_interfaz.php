@@ -35,6 +35,11 @@ function obtenerCajasActivas(): array
     return (new Cajas())->obtenerCajasActivas();
 }
 
+function obtenerCajasActivasPorEvento(int $eventoId, int $activo = 1): array
+{
+    return (new Cajas())->obtenerCajasActivasPorEvento($eventoId, $activo);
+}
+
 function crearCaja(int $eventoId, int $numero, string $nombre, string $impresora, int $activo): bool
 {
     return (new Cajas())->agregarCaja($eventoId, $numero, $nombre, $impresora, $activo);
