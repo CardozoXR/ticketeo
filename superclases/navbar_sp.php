@@ -146,5 +146,79 @@ class NavbarSP
         $stmt->bind_param("si", $nuevo_pin_hash, $cajero_id);
         return $stmt->execute();
     }
+    public function obtenerDatosResumenImpresion(int $eventoId, ?int $cajaId = null): array
+    {
+        // 1. Datos del evento
+        $stmtEv = $this->conn->prepare("SELECT * FROM eventos WHERE id = ? LIMIT 1");
+        $stmtEv->bind_param("i", $eventoId);
+        $stmtEv->execute();
+        $evento = $stmtEv->get_result()->fetch_assoc() ?: [];
+
+        // 2. Resumen de ventas (Total, Efectivo, Tarjeta)
+        if ($cajaId !== null && $cajaId > 0) {
+            $stmtVentas = $this->conn->prepare("
+                SELECT
+                    COALESCE(SUM(total), 0) AS total_ventas,
+                    COALESCE(SUM(CASE WHEN LOWER(metodo_pago) = 'efectivo' THEN total ELSE 0 END), 0) AS total_efectivo,
+                    COALESCE(SUM(CASE WHEN LOWER(metodo_pago) <> 'efectivo' THEN total ELSE 0 END), 0) AS total_tarjeta
+                FROM ventas
+                WHERE evento_id = ? AND caja_id = ? AND estado = 'completada'
+            ");
+            $stmtVentas->bind_param("ii", $eventoId, $cajaId);
+        } else {
+            $stmtVentas = $this->conn->prepare("
+                SELECT
+                    COALESCE(SUM(total), 0) AS total_ventas,
+                    COALESCE(SUM(CASE WHEN LOWER(metodo_pago) = 'efectivo' THEN total ELSE 0 END), 0) AS total_efectivo,
+                    COALESCE(SUM(CASE WHEN LOWER(metodo_pago) <> 'efectivo' THEN total ELSE 0 END), 0) AS total_tarjeta
+                FROM ventas
+                WHERE evento_id = ? AND estado = 'completada'
+            ");
+            $stmtVentas->bind_param("i", $eventoId);
+        }
+        $stmtVentas->execute();
+        $ventas = $stmtVentas->get_result()->fetch_assoc();
+
+        // 3. Resumen de tickets emitidos (Original vs. Reimpresión)
+        if ($cajaId !== null && $cajaId > 0) {
+            $stmtTck = $this->conn->prepare("
+                SELECT
+                    COUNT(ri.id) AS total_emitidos,
+                    COALESCE(SUM(CASE WHEN ri.tipo = 'original' THEN 1 ELSE 0 END), 0) AS originales,
+                    COALESCE(SUM(CASE WHEN ri.tipo = 'reimpresion' THEN 1 ELSE 0 END), 0) AS reimpresiones
+                FROM registro_impresiones ri
+                INNER JOIN ventas v ON v.id = ri.venta_id
+                WHERE v.evento_id = ? AND v.caja_id = ? AND v.estado = 'completada' AND ri.exitosa = 1
+            ");
+            $stmtTck->bind_param("ii", $eventoId, $cajaId);
+        } else {
+            $stmtTck = $this->conn->prepare("
+                SELECT
+                    COUNT(ri.id) AS total_emitidos,
+                    COALESCE(SUM(CASE WHEN ri.tipo = 'original' THEN 1 ELSE 0 END), 0) AS originales,
+                    COALESCE(SUM(CASE WHEN ri.tipo = 'reimpresion' THEN 1 ELSE 0 END), 0) AS reimpresiones
+                FROM registro_impresiones ri
+                INNER JOIN ventas v ON v.id = ri.venta_id
+                WHERE v.evento_id = ? AND v.estado = 'completada' AND ri.exitosa = 1
+            ");
+            $stmtTck->bind_param("i", $eventoId);
+        }
+        $stmtTck->execute();
+        $tickets = $stmtTck->get_result()->fetch_assoc();
+
+        return [
+            'evento' => $evento,
+            'ventas' => [
+                'total'    => (float)$ventas['total_ventas'],
+                'efectivo' => (float)$ventas['total_efectivo'],
+                'tarjeta'  => (float)$ventas['total_tarjeta'],
+            ],
+            'tickets' => [
+                'total_emitidos' => (int)$tickets['total_emitidos'],
+                'original'       => (int)$tickets['originales'],
+                'reimpresion'    => (int)$tickets['reimpresiones'],
+            ],
+        ];
+    }
 }
 ?>

@@ -142,6 +142,90 @@ class FuncionesImpresion
         return ["ok" => true, "modo_prueba" => false];
     }
 
+    public static function imprimirResumen(?string $nombreImpresora, array $resumen): array
+    {
+        if (self::MODO_PRUEBA) {
+            return ["ok" => true, "modo_prueba" => true];
+        }
+
+        if (empty($nombreImpresora) || !preg_match('/^[a-zA-Z0-9_\-\\\\. ]+$/', $nombreImpresora)) {
+            return ["ok" => false, "error" => "Nombre de impresora inválido o no asignado."];
+        }
+
+        $rutaImpresora = str_starts_with($nombreImpresora, '\\\\')
+            ? $nombreImpresora
+            : '\\\\localhost\\' . $nombreImpresora;
+
+        $ESC         = "\x1B";
+        $GS          = "\x1D";
+        $INIT        = $ESC . "@";
+        $CENTER      = $ESC . "a\x01";
+        $LEFT        = $ESC . "a\x00";
+        $BOLD_ON     = $ESC . "E\x01";
+        $BOLD_OFF    = $ESC . "E\x00";
+        $INVERT_ON   = $GS  . "B\x01";
+        $INVERT_OFF  = $GS  . "B\x00";
+        $DOUBLE_SIZE = $GS  . "!\x11";
+        $NORMAL_SIZE = $GS  . "!\x00";
+        $CUT         = $GS  . "V\x41\x03";
+
+        $lineaPar = function (string $izq, string $der): string {
+            $ancho = 32;
+            $espacios = max(1, $ancho - strlen($izq) - strlen($der));
+            return $izq . str_repeat(' ', $espacios) . $der . "\n";
+        };
+
+        $tituloHead = self::limpiarTexto(strtoupper($resumen['titulo_head']));
+        $eventoTit  = self::limpiarTexto(strtoupper($resumen['evento_titulo']));
+
+        $raw  = $INIT . $CENTER;
+        $raw .= $INVERT_ON . $BOLD_ON . "   " . $tituloHead . "   \n" . $BOLD_OFF . $INVERT_OFF . "\n";
+        $raw .= $DOUBLE_SIZE . $BOLD_ON . $eventoTit . "\n" . $NORMAL_SIZE . $BOLD_OFF;
+        $raw .= "--------------------\n";
+
+        foreach ($resumen['info_evento'] as $lineaInfo) {
+            if ($lineaInfo !== '') {
+                $raw .= $BOLD_ON . self::limpiarTexto(strtoupper($lineaInfo)) . "\n" . $BOLD_OFF;
+            }
+        }
+
+        $raw .= "--------------------\n";
+        $raw .= $BOLD_ON . "RESUMEN VENTAS\n\n" . $BOLD_OFF;
+        $raw .= $LEFT . $BOLD_ON;
+        $raw .= $lineaPar("TOTAL:", "$" . number_format($resumen['ventas']['total'], 0, ',', '.')) . "\n";
+        $raw .= $lineaPar("EFECTIVO:", "$" . number_format($resumen['ventas']['efectivo'], 0, ',', '.'));
+        $raw .= $lineaPar("TARJETA:", "$" . number_format($resumen['ventas']['tarjeta'], 0, ',', '.'));
+        $raw .= $BOLD_OFF . $CENTER;
+
+        $raw .= "--------------------\n";
+        $raw .= $BOLD_ON . "RESUMEN TICKETS\n\n" . $BOLD_OFF;
+        $raw .= $LEFT . $BOLD_ON;
+        $raw .= $lineaPar("TOTAL EMITIDOS:", number_format($resumen['tickets']['total_emitidos'], 0, ',', '.')) . "\n";
+        $raw .= $lineaPar("ORIGINAL:", number_format($resumen['tickets']['original'], 0, ',', '.'));
+        $raw .= $lineaPar("REIMPRESION:", number_format($resumen['tickets']['reimpresion'], 0, ',', '.'));
+        $raw .= $BOLD_OFF . $CENTER;
+
+        $raw .= "--------------------\n";
+        $raw .= $LEFT;
+        $raw .= "Evento: " . self::limpiarTexto($resumen['evento_nombre']) . " (" . $resumen['codigo_evento'] . ")\n";
+        $raw .= "Fecha: " . $resumen['fecha_emision'] . "\n";
+        $raw .= "Caja: " . self::limpiarTexto($resumen['caja_texto']) . "\n";
+        $raw .= "Cajero: " . self::limpiarTexto($resumen['cajero_nombre']) . "\n";
+        $raw .= $CENTER . "--------------------\n\n\n";
+        $raw .= $CUT;
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'res_');
+        file_put_contents($tmpFile, $raw);
+        $enviado = @copy($tmpFile, $rutaImpresora);
+        @unlink($tmpFile);
+
+        if (!$enviado) {
+            return ["ok" => false, "error" => "No se pudo imprimir el resumen en ({$rutaImpresora})."];
+        }
+
+        return ["ok" => true, "modo_prueba" => false];
+    }
+
     private static function limpiarTexto(string $texto): string
     {
         return strtr($texto, [

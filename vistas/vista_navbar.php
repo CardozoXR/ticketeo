@@ -88,5 +88,16 @@
             <p><strong>Cortesías:</strong> <?= (int)($resumen['cortesias'] ?? 0) ?></p>
             <p><strong>Total Tickets:</strong> <?= (int)($resumen['total_tickets'] ?? 0) ?></p>
         </div>
+        <div class="resumen-acciones" style="margin-top: 16px;">
+            <button
+                type="button"
+                id="btnImprimirResumen"
+                class="btn-imprimir-resumen"
+                onclick="imprimirResumenEvento('general')"
+                style="width: 100%; padding: 12px; background: #041348; color: #fff; border: none; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;"
+            >
+                <i class="bx bx-printer"></i> Imprimir Resumen
+            </button>
+        </div>
     <?php endif; ?>
 </div>

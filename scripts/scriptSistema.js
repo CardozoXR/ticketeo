@@ -243,3 +243,57 @@ function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
     }
   });
 });
+async function medirTamanoTickets(contenedorSelector = "#contenedorTickets58mm") {
+  const raiz = document.querySelector(contenedorSelector) || document;
+  const tickets = raiz.querySelectorAll(".ticket-58mm, .ticket");
+
+  if (!tickets.length) {
+    console.warn("No hay tickets visibles en pantalla para medir.");
+    return [];
+  }
+
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+
+  const resultados = [];
+
+  for (let i = 0; i < tickets.length; i++) {
+    const el = tickets[i];
+
+    await Promise.all(
+      Array.from(el.querySelectorAll("img")).map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise((resolve) => {
+              img.addEventListener("load", resolve, { once: true });
+              img.addEventListener("error", resolve, { once: true });
+            })
+      )
+    );
+
+    const rect = el.getBoundingClientRect();
+    const anchoMm = +(rect.width * 25.4 / 96).toFixed(1);
+    const altoMm = +(rect.height * 25.4 / 96).toFixed(1);
+    const altoConMargenMm = Math.ceil(altoMm + 3);
+
+    const identificador =
+      el.querySelector(".tck58-topbar, .codigohead")?.textContent.trim() ||
+      `Ticket #${i + 1}`;
+
+    resultados.push({
+      "#": i + 1,
+      Tipo: el.classList.contains("ticket-58mm") ? "Venta" : "Resumen",
+      Ticket: identificador,
+      "Ancho (mm)": `${anchoMm} mm`,
+      "Alto real (mm)": `${altoMm} mm`,
+      "Alto +3mm corte": `${altoConMargenMm} mm`,
+      "Px (W x H)": `${Math.round(rect.width)} x ${Math.round(rect.height)} px`,
+    });
+  }
+
+  console.table(resultados);
+  return resultados;
+}
+
+window.medirTamanoTickets = medirTamanoTickets;

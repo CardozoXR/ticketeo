@@ -41,6 +41,7 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
     <title>Ticketeo</title>
     <link rel="stylesheet" href="estilos/estilos.css">
     <link rel="stylesheet" href="estilos/estilostickets.css">
+    <link rel="stylesheet" href="estilos/estilosticketresumen.css">
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     <link rel="icon" href="imgs/ticketeo-icon.png" type="image/x-icon">
 </head>
@@ -222,7 +223,7 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
         </div>
     </div>
     
-    <!-- Modal Simulador de Impresión Térmica 58mm (Modo Prueba) -->
+    <!-- Simulador de Impresión Térmica 58mm (Modo Prueba) -->
     <div class="modal-tck-overlay" id="modalTicketsOverlay" style="display: none;">
         <div class="modal-tck-box">
             <div class="modal-tck-header">
@@ -243,10 +244,8 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
 
     if (!ticket) return;
 
-    // Esperar a que carguen las fuentes
     await document.fonts.ready;
 
-    // Esperar a que carguen las imágenes
     await Promise.all(
         Array.from(ticket.querySelectorAll("img")).map(img => {
             if (img.complete) return Promise.resolve();
@@ -267,7 +266,6 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
     // Agregar 3 mm de seguridad
     const alturaFinal = Math.ceil(alturaMm + 3);
 
-    // Crear o actualizar el tamaño de impresión
     let estilo = document.getElementById("pagina-dinamica");
 
     if (!estilo) {
@@ -287,11 +285,8 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
         `Ticket configurado: 58mm x ${alturaFinal}mm`
     );
 }
-
-// Calcular automáticamente al cargar
 window.addEventListener("load", calcularTamanoTicket);
 
-// Recalcular antes de imprimir con Ctrl + P
 window.addEventListener("beforeprint", () => {
     const ticket = document.querySelector(".ticket");
     if (!ticket) return;

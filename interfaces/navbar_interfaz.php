@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../superclases/navbar_sp.php";
 require_once __DIR__ . "/eventos_interfaz.php";
+require_once __DIR__ . "/impresion_interfaz.php";
 
 class FuncionesNavbar
 {
@@ -77,6 +78,47 @@ class FuncionesNavbar
         }
 
         return ["status" => "error", "message" => "Error al actualizar el PIN."];
+    }
+
+    public function procesarImprimirResumen(?int $eventoId, int $cajaSesionId, string $cajeroNombre, ?string $nombreImpresora, ?int $cajaFiltroId = null): array
+    {
+        $eventoReal = $this->resolverEventoId($eventoId);
+        $datos      = $this->modelo->obtenerDatosResumenImpresion($eventoReal, $cajaFiltroId);
+        $ev         = $datos['evento'];
+
+        $nombreEvento = $ev['nombre'] ?? 'After Banco';
+        $fechaEvRaw   = $ev['fecha'] ?? date('Y-m-d');
+        $ddMm         = date('d.m', strtotime($fechaEvRaw));
+        $fechaEvFmt   = date('d/m/Y', strtotime($fechaEvRaw));
+
+        $infoEvento = array_values(array_filter([
+            $ev['ciudad'] ?? 'MONTEVIDEO',
+            $ev['lugar'] ?? ($ev['ubicacion'] ?? ''),
+            'DÍA ' . $fechaEvFmt,
+            !empty($ev['hora_apertura']) ? 'PUERTA APERTURA ' . substr($ev['hora_apertura'], 0, 5) : ''
+        ]));
+
+        $resumenPayload = [
+            'titulo_head'   => $cajaFiltroId ? "CIERRE DE CAJA {$cajaFiltroId}" : "RESUMEN GENERAL",
+            'evento_titulo' => strtoupper($nombreEvento) . " " . $ddMm,
+            'evento_nombre' => $nombreEvento,
+            'codigo_evento' => 1000 + $eventoReal,
+            'info_evento'   => $infoEvento,
+            'ventas'        => $datos['ventas'],
+            'tickets'       => $datos['tickets'],
+            'fecha_emision' => date('d/m/Y H:i:s'),
+            'caja_texto'    => $cajaFiltroId ? (string)$cajaFiltroId : "General (Caja {$cajaSesionId})",
+            'cajero_nombre' => $cajeroNombre,
+        ];
+
+        $impresion = FuncionesImpresion::imprimirResumen($nombreImpresora, $resumenPayload);
+
+        return [
+            'status'    => $impresion['ok'] ? 'success' : 'error',
+            'message'   => $impresion['error'] ?? 'Resumen procesado.',
+            'impresion' => $impresion,
+            'resumen'   => $resumenPayload,
+        ];
     }
 }
 ?>

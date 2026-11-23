@@ -97,6 +97,29 @@
   margin-top: 15px;
 }
 
-img{
+.ticket .imgfooter img {
   width: 100%;
+  display: block;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #modalTicketsOverlay,
+  #modalTicketsOverlay .ticket,
+  #modalTicketsOverlay .ticket * {
+    visibility: visible;
+  }
+  #modalTicketsOverlay {
+    position: fixed;
+    inset: 0;
+    background: #ffffff !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+  #modalTicketsOverlay .ticket {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
 }
