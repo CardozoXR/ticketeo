@@ -62,10 +62,14 @@
 }
 
 .tituloticket, .txttotal {
-  font-size: 21px;
+  font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
   margin: 0;
+}
+
+.txtresumen{
+  font-size: 14px;
 }
 
 .infototal{
@@ -122,4 +126,8 @@
     box-shadow: none !important;
     margin: 0 !important;
   }
+}
+
+#contenedorTickets58mm .ticket * {
+    font-family: inherit !important;
 }

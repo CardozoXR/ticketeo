@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('America/Montevideo');
+
 class FuncionesImpresion
 {
     // 1. true = vista previa en pantalla | false = imprime en impresora real
@@ -9,6 +11,8 @@ class FuncionesImpresion
 
     public static function imprimirTicketsVenta(?string $nombreImpresora, array $datosVenta): array
     {
+        date_default_timezone_set('America/Montevideo');
+
         if (empty($datosVenta['tickets'])) {
             return ["ok" => false, "error" => "No hay tickets para imprimir."];
         }
@@ -34,7 +38,6 @@ class FuncionesImpresion
 
                 $etiqueta = self::limpiarTexto(strtoupper($ticket['etiqueta']));
                 $cajaTxt  = self::limpiarTexto($datosVenta['caja_nombre']);
-                $cajTxt   = self::limpiarTexto($datosVenta['cajero_nombre']);
 
                 $rawTotal .= "================================\r\n";
                 $rawTotal .= "  CODIGO: " . $ticket['codigo_qr'] . "\r\n";
@@ -102,9 +105,8 @@ class FuncionesImpresion
                 ? "CORTESIA"
                 : "$ " . number_format((float)$ticket['precio'], 2, '.', '');
 
-            $etiqueta  = self::limpiarTexto(strtoupper($ticket['etiqueta']));
-            $numTicket = (string)$ticket['ticket_id'];
-            $qrData    = $ticket['codigo_qr'];
+            $etiqueta = self::limpiarTexto(strtoupper($ticket['etiqueta']));
+            $qrData   = $ticket['codigo_qr'];
 
             $qrLen  = strlen($qrData) + 3;
             $lenBin = pack('v', $qrLen);
@@ -144,6 +146,8 @@ class FuncionesImpresion
 
     public static function imprimirResumen(?string $nombreImpresora, array $resumen): array
     {
+        date_default_timezone_set('America/Montevideo');
+
         if (self::MODO_PRUEBA) {
             return ["ok" => true, "modo_prueba" => true];
         }
@@ -175,13 +179,32 @@ class FuncionesImpresion
             return $izq . str_repeat(' ', $espacios) . $der . "\n";
         };
 
+        $renderBloqueEscPos = function (string $titVentas, array $ventas, string $titTickets, array $tickets) use ($CENTER, $LEFT, $BOLD_ON, $BOLD_OFF, $lineaPar): string {
+            $out  = $CENTER . $BOLD_ON . $titVentas . "\n\n" . $BOLD_OFF;
+            $out .= $LEFT . $BOLD_ON;
+            $out .= $lineaPar("TOTAL:", "$" . number_format((float)($ventas['total'] ?? 0), 0, ',', '.')) . "\n";
+            $out .= $lineaPar("EFECTIVO:", "$" . number_format((float)($ventas['efectivo'] ?? 0), 0, ',', '.'));
+            $out .= $lineaPar("TARJETA:", "$" . number_format((float)($ventas['tarjeta'] ?? 0), 0, ',', '.'));
+            $out .= $BOLD_OFF . $CENTER;
+
+            $out .= "------------------\n";
+            $out .= $BOLD_ON . $titTickets . "\n\n" . $BOLD_OFF;
+            $out .= $LEFT . $BOLD_ON;
+            $out .= $lineaPar("TOTAL EMITIDOS:", number_format((int)($tickets['total_emitidos'] ?? 0), 0, ',', '.')) . "\n";
+            $out .= $lineaPar("ORIGINAL:", number_format((int)($tickets['original'] ?? 0), 0, ',', '.'));
+            $out .= $lineaPar("REIMPRESION:", number_format((int)($tickets['reimpresion'] ?? 0), 0, ',', '.'));
+            $out .= $BOLD_OFF . $CENTER;
+
+            return $out;
+        };
+
         $tituloHead = self::limpiarTexto(strtoupper($resumen['titulo_head']));
         $eventoTit  = self::limpiarTexto(strtoupper($resumen['evento_titulo']));
 
         $raw  = $INIT . $CENTER;
         $raw .= $INVERT_ON . $BOLD_ON . "   " . $tituloHead . "   \n" . $BOLD_OFF . $INVERT_OFF . "\n";
         $raw .= $DOUBLE_SIZE . $BOLD_ON . $eventoTit . "\n" . $NORMAL_SIZE . $BOLD_OFF;
-        $raw .= "--------------------\n";
+        $raw .= "------------------\n";
 
         foreach ($resumen['info_evento'] as $lineaInfo) {
             if ($lineaInfo !== '') {
@@ -189,29 +212,43 @@ class FuncionesImpresion
             }
         }
 
-        $raw .= "--------------------\n";
-        $raw .= $BOLD_ON . "RESUMEN VENTAS\n\n" . $BOLD_OFF;
-        $raw .= $LEFT . $BOLD_ON;
-        $raw .= $lineaPar("TOTAL:", "$" . number_format($resumen['ventas']['total'], 0, ',', '.')) . "\n";
-        $raw .= $lineaPar("EFECTIVO:", "$" . number_format($resumen['ventas']['efectivo'], 0, ',', '.'));
-        $raw .= $lineaPar("TARJETA:", "$" . number_format($resumen['ventas']['tarjeta'], 0, ',', '.'));
-        $raw .= $BOLD_OFF . $CENTER;
+        $raw .= "------------------\n";
 
-        $raw .= "--------------------\n";
-        $raw .= $BOLD_ON . "RESUMEN TICKETS\n\n" . $BOLD_OFF;
-        $raw .= $LEFT . $BOLD_ON;
-        $raw .= $lineaPar("TOTAL EMITIDOS:", number_format($resumen['tickets']['total_emitidos'], 0, ',', '.')) . "\n";
-        $raw .= $lineaPar("ORIGINAL:", number_format($resumen['tickets']['original'], 0, ',', '.'));
-        $raw .= $lineaPar("REIMPRESION:", number_format($resumen['tickets']['reimpresion'], 0, ',', '.'));
-        $raw .= $BOLD_OFF . $CENTER;
+        if (!empty($resumen['es_general']) && !empty($resumen['desglose_cajas'])) {
+            foreach ($resumen['desglose_cajas'] as $idx => $cajaData) {
+                if ($idx > 0) {
+                    $raw .= "------------------\n";
+                }
+                $numCaja = (int)$cajaData['caja_num'];
+                $raw .= $renderBloqueEscPos(
+                    "VENTAS CAJA {$numCaja}",
+                    $cajaData['ventas'],
+                    "TICKETS CAJA {$numCaja}",
+                    $cajaData['tickets']
+                );
+            }
+            $raw .= "===================\n";
+            $raw .= $renderBloqueEscPos(
+                "GENERAL VENTAS",
+                $resumen['ventas'],
+                "GENERAL TICKETS",
+                $resumen['tickets']
+            );
+        } else {
+            $raw .= $renderBloqueEscPos(
+                "RESUMEN VENTAS",
+                $resumen['ventas'],
+                "RESUMEN TICKETS",
+                $resumen['tickets']
+            );
+        }
 
-        $raw .= "--------------------\n";
+        $raw .= "------------------\n";
         $raw .= $LEFT;
         $raw .= "Evento: " . self::limpiarTexto($resumen['evento_nombre']) . " (" . $resumen['codigo_evento'] . ")\n";
         $raw .= "Fecha: " . $resumen['fecha_emision'] . "\n";
         $raw .= "Caja: " . self::limpiarTexto($resumen['caja_texto']) . "\n";
-        $raw .= "Cajero: " . self::limpiarTexto($resumen['cajero_nombre']) . "\n";
-        $raw .= $CENTER . "--------------------\n\n\n";
+        $raw .= $CENTER . "------------------\n\n\n";
         $raw .= $CUT;
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'res_');

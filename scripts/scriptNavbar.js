@@ -118,7 +118,22 @@ function resetPin(cajeroId) {
     .catch((error) => console.error("Error:", error));
 }
 
+function asegurarFuentesTickets() {
+  if (document.getElementById("fix-fuentes-tickets")) return;
+  const style = document.createElement("style");
+  style.id = "fix-fuentes-tickets";
+  style.textContent = `
+    #contenedorTickets58mm .ticket-58mm *,
+    #contenedorTickets58mm .ticket * {
+      font-family: inherit;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  asegurarFuentesTickets();
+
   const menuIcon = document.querySelector(".menu-header i");
   const sidebar = document.getElementById("sidebarMenu");
   const overlay = document.getElementById("sidebarOverlay");
@@ -179,6 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       if (data.status === "success") {
         if (data.impresion?.modo_prueba && typeof window.mostrarPreviewTickets58mm === "function") {
+          asegurarFuentesTickets();
           window.mostrarPreviewTickets58mm(data, true);
         }
       } else {
@@ -190,138 +206,182 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-  function imprimirResumenEvento(tipo = "general", cajaId = null) {
-    const formData = new FormData();
-    formData.append("accion", "imprimir_resumen");
-    if (tipo === "caja" && cajaId) {
-      formData.append("caja_filtro", cajaId);
-    }
-
-    fetch("endpoints/acciones_navbar.php", { method: "POST", body: formData })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status !== "success") {
-          alert("Error: " + (data.message || "No se pudo generar el resumen."));
-          return;
-        }
-
-        if (data.impresion?.modo_prueba) {
-          mostrarPreviewResumen58mm(data.resumen);
-        } else {
-          alert("Resumen enviado a la impresora térmica.");
-        }
-      })
-      .catch((err) => console.error("Error al imprimir resumen:", err));
+function imprimirResumenEvento(tipo = "general", cajaId = null) {
+  const formData = new FormData();
+  formData.append("accion", "imprimir_resumen");
+  if (tipo === "caja" && cajaId) {
+    formData.append("caja_filtro", cajaId);
   }
 
-  function mostrarPreviewResumen58mm(resumen) {
-    const overlay = document.getElementById("modalTicketsOverlay");
-    const contenedor = document.getElementById("contenedorTickets58mm");
-    const titulo = document.getElementById("modalTicketsTitulo");
-    if (!overlay || !contenedor) return;
-
-    if (titulo) titulo.textContent = resumen.titulo_head;
-
-    const fmtDinero = (val) => "$" + Number(val || 0).toLocaleString("es-UY");
-    const fmtNum = (val) => Number(val || 0).toLocaleString("es-UY");
-
-    const infoHtml = (resumen.info_evento || [])
-      .map((linea) => `<p class="txtinfo">${linea}</p>`)
-      .join("");
-
-    contenedor.innerHTML = `
-      <div class="ticket">
-        <div class="codigohead">
-          <p>${resumen.titulo_head}</p>
-        </div>
-
-        <div class="evento">
-          <img src="imgs/logo2.png" alt="Logo" class="logoevento" onerror="this.style.display='none'" />
-          <p class="nombreevento">${resumen.evento_titulo}</p>
-        </div>
-
-        <div class="separador"><p>-------------------</p></div>
-
-        <div class="infocajero">${infoHtml}</div>
-
-        <div class="separador"><p>-------------------</p></div>
-
-        <div class="inforesumen">
-          <p class="tituloticket">RESUMEN VENTAS</p>
-          <div class="infototal divuno">
-            <p class="txtresumen">TOTAL:</p>
-            <p class="dineroresumen">${fmtDinero(resumen.ventas.total)}</p>
-          </div>
-          <div class="infototal">
-            <p class="txtresumen">EFECTIVO:</p>
-            <p class="dineroresumen">${fmtDinero(resumen.ventas.efectivo)}</p>
-          </div>
-          <div class="infototal">
-            <p class="txtresumen">TARJETA:</p>
-            <p class="dineroresumen">${fmtDinero(resumen.ventas.tarjeta)}</p>
-          </div>
-        </div>
-
-        <div class="separador"><p>-------------------</p></div>
-
-        <div class="inforesumen">
-          <p class="tituloticket">RESUMEN TICKETS</p>
-          <div class="infototal divuno">
-            <p class="txtresumen">TOTAL EMITIDOS:</p>
-            <p class="dineroresumen">${fmtNum(resumen.tickets.total_emitidos)}</p>
-          </div>
-          <div class="infototal">
-            <p class="txtresumen">ORIGINAL:</p>
-            <p class="dineroresumen">${fmtNum(resumen.tickets.original)}</p>
-          </div>
-          <div class="infototal">
-            <p class="txtresumen">REIMPRESIÓN:</p>
-            <p class="dineroresumen">${fmtNum(resumen.tickets.reimpresion)}</p>
-          </div>
-        </div>
-
-        <div class="separador"><p>-------------------</p></div>
-
-        <div class="infogeneral">
-          <p>Evento: ${resumen.evento_nombre} (${resumen.codigo_evento})</p>
-          <p>Fecha: ${resumen.fecha_emision}</p>
-          <p>Caja: ${resumen.caja_texto}</p>
-          <p>Cajero: ${resumen.cajero_nombre}</p>
-        </div>
-
-        <div class="imgfooter">
-          <img src="imgs/footer-ticketeo.png" alt="Ticketeo" onerror="this.style.display='none'" />
-        </div>
-
-        <div class="separador"><p>-------------------</p></div>
-      </div>
-    `;
-
-    overlay.style.display = "flex";
-
-    requestAnimationFrame(async () => {
-      const ticketEl = contenedor.querySelector(".ticket");
-      if (!ticketEl) return;
-      if (document.fonts?.ready) await document.fonts.ready;
-
-      await Promise.all(
-        Array.from(ticketEl.querySelectorAll("img")).map((img) =>
-          img.complete
-            ? Promise.resolve()
-            : new Promise((r) => {
-                img.addEventListener("load", r, { once: true });
-                img.addEventListener("error", r, { once: true });
-              })
-        )
-      );
-
-      const alturaFinal = Math.ceil((ticketEl.getBoundingClientRect().height * 25.4) / 96 + 3);
-      let estilo = document.getElementById("pagina-dinamica");
-      if (!estilo) {
-        estilo = document.createElement("style");
-        estilo.id = "pagina-dinamica";
-        document.head.appendChild(estilo);
+  fetch("endpoints/acciones_navbar.php", { method: "POST", body: formData })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status !== "success") {
+        alert("Error: " + (data.message || "No se pudo generar el resumen."));
+        return;
       }
-      estilo.textContent = `@page { size: 58mm ${alturaFinal}mm; margin: 0; }`;
-    });
+
+      if (data.impresion?.modo_prueba) {
+        mostrarPreviewResumen58mm(data.resumen);
+      } else {
+        alert("Resumen enviado a la impresora térmica.");
+      }
+    })
+    .catch((err) => console.error("Error al imprimir resumen:", err));
+}
+
+function mostrarPreviewResumen58mm(resumen) {
+  asegurarFuentesTickets();
+
+  const overlay = document.getElementById("modalTicketsOverlay");
+  const contenedor = document.getElementById("contenedorTickets58mm");
+  const titulo = document.getElementById("modalTicketsTitulo");
+
+  if (!overlay || !contenedor) return;
+
+  if (titulo) titulo.textContent = resumen.titulo_head;
+
+  const fmtDinero = (val) => "$" + Number(val || 0).toLocaleString("es-UY");
+  const fmtNum = (val) => Number(val || 0).toLocaleString("es-UY");
+
+  const infoHtml = (resumen.info_evento || [])
+    .map((linea) => `<p class="txtinfo">${linea}</p>`)
+    .join("");
+
+  const renderSeccionTotales = (tituloVentas, ventas, tituloTickets, tickets) => `
+    <div class="inforesumen">
+      <p class="tituloticket">${tituloVentas}</p>
+      <div class="infototal divuno">
+        <p class="txtresumen">TOTAL:</p>
+        <p class="dineroresumen">${fmtDinero(ventas?.total)}</p>
+      </div>
+      <div class="infototal">
+        <p class="txtresumen">EFECTIVO:</p>
+        <p class="dineroresumen">${fmtDinero(ventas?.efectivo)}</p>
+      </div>
+      <div class="infototal">
+        <p class="txtresumen">TARJETA:</p>
+        <p class="dineroresumen">${fmtDinero(ventas?.tarjeta)}</p>
+      </div>
+    </div>
+
+    <div class="separador"><p>------------------</p></div>
+
+    <div class="inforesumen">
+      <p class="tituloticket">${tituloTickets}</p>
+      <div class="infototal divuno">
+        <p class="txtresumen">TOTAL EMITIDOS:</p>
+        <p class="dineroresumen">${fmtNum(tickets?.total_emitidos)}</p>
+      </div>
+      <div class="infototal">
+        <p class="txtresumen">ORIGINAL:</p>
+        <p class="dineroresumen">${fmtNum(tickets?.original)}</p>
+      </div>
+      <div class="infototal">
+        <p class="txtresumen">REIMPRESIÓN:</p>
+        <p class="dineroresumen">${fmtNum(tickets?.reimpresion)}</p>
+      </div>
+    </div>
+  `;
+
+  let cuerpoResumenHtml = "";
+
+  if (resumen.es_general && Array.isArray(resumen.desglose_cajas) && resumen.desglose_cajas.length) {
+    const bloquesCajas = resumen.desglose_cajas
+      .map((caja) => {
+        return renderSeccionTotales(
+          `VENTAS CAJA ${caja.caja_num}`,
+          caja.ventas,
+          `TICKETS CAJA ${caja.caja_num}`,
+          caja.tickets
+        );
+      })
+      .join(`<div class="separador"><p>------------------</p></div>`);
+
+    cuerpoResumenHtml = `
+      ${bloquesCajas}
+      <div class="separador"><p>===================</p></div>
+      ${renderSeccionTotales(
+        "GENERAL VENTAS",
+        resumen.ventas,
+        "GENERAL TICKETS",
+        resumen.tickets
+      )}
+    `;
+  } else {
+    cuerpoResumenHtml = renderSeccionTotales(
+      "RESUMEN VENTAS",
+      resumen.ventas,
+      "RESUMEN TICKETS",
+      resumen.tickets
+    );
   }
+
+  contenedor.innerHTML = `
+    <div class="ticket">
+      <div class="codigohead">
+        <p>${resumen.titulo_head}</p>
+      </div>
+
+      <div class="evento">
+        <img src="imgs/logo2.png" alt="Logo" class="logoevento" onerror="this.style.display='none'" />
+        <p class="nombreevento">${resumen.evento_titulo}</p>
+      </div>
+
+      <div class="separador"><p>------------------</p></div>
+
+      <div class="infocajero">${infoHtml}</div>
+
+      <div class="separador"><p>------------------</p></div>
+
+      ${cuerpoResumenHtml}
+
+      <div class="separador"><p>------------------</p></div>
+
+      <div class="infogeneral">
+        <p>Evento: ${resumen.evento_nombre} (${resumen.codigo_evento})</p>
+        <p>Fecha: ${resumen.fecha_emision}</p>
+        <p>Caja: ${resumen.caja_texto}</p>
+      </div>
+
+      <div class="imgfooter">
+        <img src="imgs/footer-ticketeo.png" alt="Ticketeo" onerror="this.style.display='none'" />
+      </div>
+
+      <div class="separador"><p>------------------</p></div>
+    </div>
+  `;
+
+  overlay.style.display = "flex";
+
+  requestAnimationFrame(async () => {
+    const ticketEl = contenedor.querySelector(".ticket");
+    if (!ticketEl) return;
+    if (document.fonts?.ready) await document.fonts.ready;
+
+    await Promise.all(
+      Array.from(ticketEl.querySelectorAll("img")).map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise((r) => {
+              img.addEventListener("load", r, { once: true });
+              img.addEventListener("error", r, { once: true });
+            })
+      )
+    );
+
+    const alturaFinal = Math.ceil((ticketEl.getBoundingClientRect().height * 25.4) / 96 + 3);
+    let estilo = document.getElementById("pagina-dinamica");
+    if (!estilo) {
+      estilo = document.createElement("style");
+      estilo.id = "pagina-dinamica";
+      document.head.appendChild(estilo);
+    }
+    estilo.textContent = `@page { size: 58mm ${alturaFinal}mm; margin: 0; }`;
+
+    window.medirTamanoTickets?.();
+  });
+}
+
+window.imprimirResumenEvento = imprimirResumenEvento;
+window.mostrarPreviewResumen58mm = mostrarPreviewResumen58mm;

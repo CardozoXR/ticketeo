@@ -88,16 +88,33 @@
             <p><strong>Cortesías:</strong> <?= (int)($resumen['cortesias'] ?? 0) ?></p>
             <p><strong>Total Tickets:</strong> <?= (int)($resumen['total_tickets'] ?? 0) ?></p>
         </div>
-        <div class="resumen-acciones" style="margin-top: 16px;">
+        <div class="resumen-acciones">
             <button
                 type="button"
                 id="btnImprimirResumen"
-                class="btn-imprimir-resumen"
+                class="btn-imprimir-resumen btn-resumen-general"
                 onclick="imprimirResumenEvento('general')"
-                style="width: 100%; padding: 12px; background: #041348; color: #fff; border: none; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;"
             >
-                <i class="bx bx-printer"></i> Imprimir Resumen
+                <i class="bx bx-printer"></i> Imprimir Resumen General
             </button>
+
+            <div class="resumen-acciones-cajas">
+                <button
+                    type="button"
+                    class="btn-imprimir-resumen btn-resumen-caja"
+                    onclick="imprimirResumenEvento('caja', 1)"
+                >
+                    <i class="bx bx-printer"></i> Caja 1
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-imprimir-resumen btn-resumen-caja"
+                    onclick="imprimirResumenEvento('caja', 2)"
+                >
+                    <i class="bx bx-printer"></i> Caja 2
+                </button>
+            </div>
         </div>
     <?php endif; ?>
 </div>

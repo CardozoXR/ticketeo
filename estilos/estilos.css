@@ -985,3 +985,57 @@ input[type="text"]:focus {
     font-size: 9px;
     color: #555;
 }
+
+.resumen-acciones {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.resumen-acciones-cajas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.btn-imprimir-resumen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-imprimir-resumen:active {
+    transform: scale(0.98);
+}
+
+.btn-resumen-general {
+    width: 100%;
+    padding: 12px;
+    background-color: #041348;
+    color: #ffffff;
+    border: none;
+    font-size: 14px;
+    gap: 8px;
+}
+
+.btn-resumen-general:hover {
+    background-color: #071e6e;
+}
+
+.btn-resumen-caja {
+    padding: 10px 8px;
+    background-color: #ffffff;
+    color: #041348;
+    border: 1.5px solid #041348;
+    font-size: 13px;
+    gap: 6px;
+}
+
+.btn-resumen-caja:hover {
+    background-color: #f0f3fa;
+}

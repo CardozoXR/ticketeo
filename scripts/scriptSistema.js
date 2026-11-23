@@ -90,6 +90,7 @@ function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
     });
 
     modalTicketsOverlay.style.display = "flex";
+    requestAnimationFrame(() => medirTamanoTickets());
   }
 
   window.mostrarPreviewTickets58mm = mostrarPreviewTickets58mm;

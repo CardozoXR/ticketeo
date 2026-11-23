@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Montevideo');
 require_once __DIR__ . "/../superclases/navbar_sp.php";
 require_once __DIR__ . "/eventos_interfaz.php";
 require_once __DIR__ . "/impresion_interfaz.php";
@@ -82,33 +83,51 @@ class FuncionesNavbar
 
     public function procesarImprimirResumen(?int $eventoId, int $cajaSesionId, string $cajeroNombre, ?string $nombreImpresora, ?int $cajaFiltroId = null): array
     {
+        date_default_timezone_set('America/Montevideo');
+
         $eventoReal = $this->resolverEventoId($eventoId);
         $datos      = $this->modelo->obtenerDatosResumenImpresion($eventoReal, $cajaFiltroId);
         $ev         = $datos['evento'];
 
         $nombreEvento = $ev['nombre'] ?? 'After Banco';
-        $fechaEvRaw   = $ev['fecha'] ?? date('Y-m-d');
-        $ddMm         = date('d.m', strtotime($fechaEvRaw));
-        $fechaEvFmt   = date('d/m/Y', strtotime($fechaEvRaw));
+        $fechaHoyRaw  = date('Y-m-d');
+        $ddMm         = date('d.m', strtotime($fechaHoyRaw));
+        $fechaHoyFmt  = date('d/m/Y');
 
         $infoEvento = array_values(array_filter([
             $ev['ciudad'] ?? 'MONTEVIDEO',
             $ev['lugar'] ?? ($ev['ubicacion'] ?? ''),
-            'DÍA ' . $fechaEvFmt,
+            'DÍA ' . $fechaHoyFmt,
             !empty($ev['hora_apertura']) ? 'PUERTA APERTURA ' . substr($ev['hora_apertura'], 0, 5) : ''
         ]));
 
+        $esGeneral     = ($cajaFiltroId === null);
+        $desgloseCajas = [];
+
+        if ($esGeneral) {
+            foreach ([1, 2] as $numCaja) {
+                $datosCaja = $this->modelo->obtenerDatosResumenImpresion($eventoReal, $numCaja);
+
+                $desgloseCajas[] = [
+                    'caja_num' => $numCaja,
+                    'ventas'   => $datosCaja['ventas'],
+                    'tickets'  => $datosCaja['tickets'],
+                ];
+            }
+        }
+
         $resumenPayload = [
-            'titulo_head'   => $cajaFiltroId ? "CIERRE DE CAJA {$cajaFiltroId}" : "RESUMEN GENERAL",
-            'evento_titulo' => strtoupper($nombreEvento) . " " . $ddMm,
-            'evento_nombre' => $nombreEvento,
-            'codigo_evento' => 1000 + $eventoReal,
-            'info_evento'   => $infoEvento,
-            'ventas'        => $datos['ventas'],
-            'tickets'       => $datos['tickets'],
-            'fecha_emision' => date('d/m/Y H:i:s'),
-            'caja_texto'    => $cajaFiltroId ? (string)$cajaFiltroId : "General (Caja {$cajaSesionId})",
-            'cajero_nombre' => $cajeroNombre,
+            'titulo_head'    => $cajaFiltroId ? "CIERRE DE CAJA {$cajaFiltroId}" : "RESUMEN GENERAL",
+            'evento_titulo'  => strtoupper($nombreEvento) . " " . $ddMm,
+            'evento_nombre'  => $nombreEvento,
+            'codigo_evento'  => 1000 + $eventoReal,
+            'info_evento'    => $infoEvento,
+            'es_general'     => $esGeneral,
+            'desglose_cajas' => $desgloseCajas,
+            'ventas'         => $datos['ventas'],
+            'tickets'        => $datos['tickets'],
+            'fecha_emision'  => date('d/m/Y H:i:s'),
+            'caja_texto'     => $cajaFiltroId ? (string)$cajaFiltroId : "General (Caja {$cajaSesionId})",
         ];
 
         $impresion = FuncionesImpresion::imprimirResumen($nombreImpresora, $resumenPayload);
@@ -120,6 +139,7 @@ class FuncionesNavbar
             'resumen'   => $resumenPayload,
         ];
     }
+
     public function sincronizarNombreSesion(int $cajaNumero, ?int $eventoId = null): string
     {
         $eventoReal = $this->resolverEventoId($eventoId);
