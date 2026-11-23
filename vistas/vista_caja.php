@@ -13,6 +13,13 @@ require_once __DIR__ . "/../interfaces/cajeros_interfaz.php";
 require_once __DIR__ . "/../interfaces/categorias_interfaz.php";
 require_once __DIR__ . "/../interfaces/productos_interfaz.php";
 require_once __DIR__ . "/../interfaces/eventos_interfaz.php";
+require_once __DIR__ . "/../interfaces/navbar_interfaz.php";
+
+$navbarCtrl = new FuncionesNavbar();
+$nombreCajeroActual = $navbarCtrl->sincronizarNombreSesion(
+    (int)($_SESSION['caja'] ?? 0),
+    isset($_SESSION['evento_id']) ? (int)$_SESSION['evento_id'] : null
+);
 
 $evento = obtenerEventoActivo();
 if (!$evento) {
@@ -50,7 +57,7 @@ if (obtenerCajeroActivoPorNumeroCaja($caja, $evento_id) === null) {
     <header>
         <div class="txt-header">
             <div class="nombre-header" id="btnPerfil" data-caja="<?php echo $caja; ?>">
-                <span id="headerNombreCajero"><?php echo htmlspecialchars($nombre); ?></span>
+                <span id="headerNombreCajero"><?= htmlspecialchars($_SESSION['nombre'] ?? '') ?></span>
                 <i class='bx bx-chevron-down'></i>
             </div>
             <div class="info-header">Caja <?php echo $caja; ?> - <?php echo $infoEvento; ?></div>

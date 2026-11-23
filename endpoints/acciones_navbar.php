@@ -39,6 +39,11 @@ if ($accion === 'cambiar_nombre') {
     );
     echo json_encode($respuesta, JSON_UNESCAPED_UNICODE);
     exit;
+} elseif ($accion === 'sync_nombre') {
+    $cajaNum  = (int)($_SESSION['caja'] ?? 0);
+    $eventoId = isset($_SESSION['evento_id']) ? (int)$_SESSION['evento_id'] : null;
+    echo json_encode($controlador->sincronizarNombreSesion($cajaNum, $eventoId), JSON_UNESCAPED_UNICODE);
+    exit;
 } else {
     http_response_code(400);
     echo json_encode(["status" => "error", "message" => "Acción no válida."], JSON_UNESCAPED_UNICODE);

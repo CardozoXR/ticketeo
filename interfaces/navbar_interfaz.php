@@ -120,5 +120,17 @@ class FuncionesNavbar
             'resumen'   => $resumenPayload,
         ];
     }
+    public function sincronizarNombreSesion(int $cajaNumero, ?int $eventoId = null): string
+    {
+        $eventoReal = $this->resolverEventoId($eventoId);
+        $datosCaja  = $this->modelo->getDatosCaja($cajaNumero, $eventoReal);
+        $nombreBD   = $datosCaja['nombre'] ?? ($datosCaja['cajero_nombre'] ?? ($_SESSION['nombre'] ?? ''));
+
+        if ($nombreBD !== '') {
+            $_SESSION['nombre'] = $nombreBD;
+        }
+
+        return (string)($_SESSION['nombre'] ?? '');
+    }
 }
 ?>
