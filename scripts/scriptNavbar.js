@@ -180,54 +180,67 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!btnReimprimir) return;
 
     const ventaId = Number(btnReimprimir.dataset.ventaId || 0);
+    const impresora = btnReimprimir.dataset.impresora || "caja1";
+
     if (!ventaId) return;
 
     try {
-      const response = await fetch("endpoints/procesar_venta.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accion: "reimprimir",
-          venta_id: ventaId,
-        }),
-      });
-      const data = await response.json();
-      if (data.status === "success") {
-        if (data.impresion?.modo_prueba && typeof window.mostrarPreviewTickets58mm === "function") {
-          asegurarFuentesTickets();
-          window.mostrarPreviewTickets58mm(data, true);
+        const response = await fetch("endpoints/procesar_venta.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                accion: "reimprimir",
+                venta_id: ventaId,
+                impresora: impresora
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+            if (data.impresion?.modo_prueba && typeof window.mostrarPreviewTickets58mm === "function") {
+                asegurarFuentesTickets();
+                window.mostrarPreviewTickets58mm(data, true);
+            }
+        } else {
+            alert(data.message || "No se pudo reimprimir la venta.");
         }
-      } else {
-        alert(data.message || "No se pudo reimprimir la venta.");
-      }
+
     } catch (error) {
-      console.error("Error al reimprimir desde panel:", error);
+        console.error("Error al reimprimir desde panel:", error);
     }
-  });
+});
 });
 
 function imprimirResumenEvento(tipo = "general", cajaId = null) {
-  const formData = new FormData();
-  formData.append("accion", "imprimir_resumen");
-  if (tipo === "caja" && cajaId) {
-    formData.append("caja_filtro", cajaId);
-  }
+    const formData = new FormData();
 
-  fetch("endpoints/acciones_navbar.php", { method: "POST", body: formData })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.status !== "success") {
-        alert("Error: " + (data.message || "No se pudo generar el resumen."));
-        return;
-      }
+    formData.append("accion", "imprimir_resumen");
 
-      if (data.impresion?.modo_prueba) {
-        mostrarPreviewResumen58mm(data.resumen);
-      } else {
-        alert("Resumen enviado a la impresora térmica.");
-      }
+    if (tipo === "caja2" && cajaId) {
+        formData.append("caja_filtro", cajaId);
+    }
+
+    if (tipo === "caja1" && cajaId) {
+        formData.append("caja_filtro", cajaId);
+    }
+
+    fetch("endpoints/acciones_navbar.php", {
+        method: "POST",
+        body: formData
     })
-    .catch((err) => console.error("Error al imprimir resumen:", err));
+    .then(res => res.json())
+    .then(data => {
+        if (data.status !== "success") {
+            alert("Error: " + (data.message || "No se pudo generar el resumen."));
+            return;
+        }
+
+        if (data.impresion?.modo_prueba) {
+            mostrarPreviewResumen58mm(data.resumen);
+        }
+    })
+    .catch(err => console.error("Error al imprimir resumen:", err));
 }
 
 function mostrarPreviewResumen58mm(resumen) {

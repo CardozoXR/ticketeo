@@ -67,6 +67,15 @@ class Cajas
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
+    public function obtenerImpresoraCaja(int $numeroCaja){
+        $activo = 1;
+
+        $stmt = $this->conn->prepare("SELECT impresora FROM cajas WHERE numero = ? AND activo = ?");
+        $stmt->bind_param("ii", $numeroCaja, $activo);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
     public function agregarCaja(int $eventoid, int $numero, string $nombre, string $impresora, int $activo): bool
     {
         $stmt = $this->conn->prepare("INSERT INTO cajas (evento_id, numero, nombre, impresora, activo) VALUES (?, ?, ?, ?, ?)");

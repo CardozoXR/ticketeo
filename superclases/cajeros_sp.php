@@ -24,6 +24,14 @@ class Cajeros
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
+    public function obtenerCajaDeCajero($cajero_id){
+        $stmt = $this->conn->prepare("SELECT caja_id FROM cajeros WHERE id = ? AND activo = 1");
+        $stmt->bind_param("i", $cajero_id);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_assoc();
+    }
+
     public function obtenerCajeroPorNumeroCaja(int $numeroCaja, int $eventoId): ?array
     {
         $stmt = $this->conn->prepare("SELECT cj.*, c.id AS caja_id_real, c.numero AS caja_numero

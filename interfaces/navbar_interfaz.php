@@ -97,9 +97,9 @@ class FuncionesNavbar
 
         $infoEvento = array_values(array_filter([
             $ev['ciudad'] ?? 'MONTEVIDEO',
-            $ev['lugar'] ?? ($ev['ubicacion'] ?? ''),
+            $ev['lugar'] ?? ($ev['ubicacion'] ?? 'SALA 26 - MONTEVIDEO'),
             'DÍA ' . $fechaEventoDMY,
-            !empty($ev['hora_apertura']) ? 'PUERTA APERTURA ' . substr($ev['hora_apertura'], 0, 5) : ''
+            'PUERTA APERTURA 21:00'
         ]));
 
         $esGeneral     = ($cajaFiltroId === null);

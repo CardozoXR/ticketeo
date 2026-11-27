@@ -24,7 +24,7 @@
                         Op #<?= (int)$t['numero_operacion'] ?>
                         (<?= (int)$t['cantidad_tickets'] ?> ticket<?= $t['cantidad_tickets'] > 1 ? 's' : '' ?>)
                         - $<?= number_format($t['total'], 0, ',', '.') ?>
-                        <div class="reimprimirTickets" data-venta-id="<?= (int)$t['venta_id'] ?>" data-op="<?= (int)$t['numero_operacion'] ?>">
+                        <div class="reimprimirTickets" data-venta-id="<?= (int)$t['venta_id'] ?>" data-op="<?= (int)$t['numero_operacion'] ?>" data-impresora="caja1">
                             <i class='bx bx-printer'></i>
                         </div>
                     </li>
@@ -62,7 +62,7 @@
                         Op #<?= (int)$t['numero_operacion'] ?>
                         (<?= (int)$t['cantidad_tickets'] ?> ticket<?= $t['cantidad_tickets'] > 1 ? 's' : '' ?>)
                         - $<?= number_format($t['total'], 0, ',', '.') ?>
-                        <div class="reimprimirTickets" data-venta-id="<?= (int)$t['venta_id'] ?>" data-op="<?= (int)$t['numero_operacion'] ?>">
+                        <div class="reimprimirTickets" data-venta-id="<?= (int)$t['venta_id'] ?>" data-op="<?= (int)$t['numero_operacion'] ?>" data-impresora="caja2">
                             <i class='bx bx-printer'></i>
                         </div>
                     </li>
@@ -102,7 +102,7 @@
                 <button
                     type="button"
                     class="btn-imprimir-resumen btn-resumen-caja"
-                    onclick="imprimirResumenEvento('caja', 1)"
+                    onclick="imprimirResumenEvento('caja1', 1)"
                 >
                     <i class="bx bx-printer"></i> Caja 1
                 </button>
@@ -110,7 +110,7 @@
                 <button
                     type="button"
                     class="btn-imprimir-resumen btn-resumen-caja"
-                    onclick="imprimirResumenEvento('caja', 2)"
+                    onclick="imprimirResumenEvento('caja2', 2)"
                 >
                     <i class="bx bx-printer"></i> Caja 2
                 </button>

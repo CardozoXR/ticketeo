@@ -214,6 +214,9 @@ function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
     if (!ultimaVenta) return;
 
     const textoOriginal = btnReimprimirTickets.querySelector("p").textContent;
+    const btnReimprimirtickets = document.getElementById("btn-reimprimirtickets");
+
+    const impresora = btnReimprimirtickets.dataset.impresora || "caja1";
     btnReimprimirTickets.querySelector("p").textContent = "Reimprimiendo...";
 
     try {
@@ -223,6 +226,7 @@ function mostrarPreviewTickets58mm(datosVenta, esReimpresion = false) {
         body: JSON.stringify({
           accion: "reimprimir",
           venta_id: ultimaVenta.venta_id,
+          impresora: impresora,
         }),
       });
 

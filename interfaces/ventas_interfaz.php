@@ -141,52 +141,74 @@ class FuncionesVentas
         }
     }
 
-    public function reimprimirVenta(int $cajaNumero, int $ventaId, ?int $eventoId = null): array
-    {
-        if ($ventaId <= 0) {
-            return ["status" => "error", "message" => "ID de venta inválido."];
-        }
-
-        $evento = $eventoId ? obtenerEventoPorID($eventoId) : obtenerEventoActivo();
-        if (!$evento) {
-            return ["status" => "error", "message" => "Evento activo no encontrado."];
-        }
-
-        $contexto = obtenerContextoCaja($cajaNumero, (int)$evento['id']);
-        if (!$contexto) {
-            return ["status" => "error", "message" => "Cajero activo no encontrado."];
-        }
-
-        $tickets = obtenerTicketsDetallePorVenta($ventaId);
-        if (empty($tickets)) {
-            return ["status" => "error", "message" => "No se encontraron tickets válidos para reimprimir."];
-        }
-
-        foreach ($tickets as $t) {
-            agregarReimpresion($ventaId, (int)$t['ticket_id'], (int)$contexto['cajero_id'], 1);
-        }
-
-        $numeroOperacion = (int)$tickets[0]['numero_operacion'];
-        $datosImpresion  = [
-            "evento_nombre"    => $evento['nombre'],
-            "caja_nombre"      => $contexto['caja_nombre'],
-            "cajero_nombre"    => $contexto['cajero_nombre'],
-            "numero_operacion" => $numeroOperacion,
-            "tickets"          => $tickets
-        ];
-
-        $impresion = FuncionesImpresion::imprimirTicketsVenta($contexto['impresora'], $datosImpresion);
-
-        return [
-            "status"           => $impresion['ok'] ? "success" : "error",
-            "message"          => $impresion['error'] ?? "Tickets reimpresos.",
-            "evento_nombre"    => $evento['nombre'],
-            "caja_nombre"      => $contexto['caja_nombre'],
-            "cajero_nombre"    => $contexto['cajero_nombre'],
-            "numero_operacion" => $numeroOperacion,
-            "tickets"          => $tickets,
-            "impresion"        => $impresion
-        ];
+    public function reimprimirVenta(
+    int $cajaNumero,
+    int $ventaId,
+    ?int $eventoId = null,
+    string $impresora = ''
+): array
+{
+    if ($ventaId <= 0) {
+        return ["status" => "error", "message" => "ID de venta inválido."];
     }
+
+    $evento = $eventoId ? obtenerEventoPorID($eventoId) : obtenerEventoActivo();
+
+    if (!$evento) {
+        return ["status" => "error", "message" => "Evento activo no encontrado."];
+    }
+
+    $contexto = obtenerContextoCaja($cajaNumero, (int)$evento['id']);
+
+    if (!$contexto) {
+        return ["status" => "error", "message" => "Cajero activo no encontrado."];
+    }
+
+    $tickets = obtenerTicketsDetallePorVenta($ventaId);
+
+    if (empty($tickets)) {
+        return ["status" => "error", "message" => "No se encontraron tickets válidos para reimprimir."];
+    }
+
+    foreach ($tickets as $t) {
+        agregarReimpresion(
+            $ventaId,
+            (int)$t['ticket_id'],
+            (int)$contexto['cajero_id'],
+            1
+        );
+    }
+
+    $numeroOperacion = (int)$tickets[0]['numero_operacion'];
+
+    $datosImpresion = [
+        "evento_nombre"    => $evento['nombre'],
+        "caja_nombre"      => $contexto['caja_nombre'],
+        "cajero_nombre"    => $contexto['cajero_nombre'],
+        "numero_operacion" => $numeroOperacion,
+        "tickets"          => $tickets
+    ];
+
+    // Si no se especifica impresora, utiliza la de la caja.
+    $impresoraFinal = ($impresora !== '')
+        ? $impresora
+        : $contexto['impresora'];
+
+    $impresion = FuncionesImpresion::imprimirTicketsVenta(
+        $impresoraFinal,
+        $datosImpresion
+    );
+
+    return [
+        "status"           => $impresion['ok'] ? "success" : "error",
+        "message"          => $impresion['error'] ?? "Tickets reimpresos.",
+        "evento_nombre"    => $evento['nombre'],
+        "caja_nombre"      => $contexto['caja_nombre'],
+        "cajero_nombre"    => $contexto['cajero_nombre'],
+        "numero_operacion" => $numeroOperacion,
+        "tickets"          => $tickets,
+        "impresion"        => $impresion
+    ];
+}
 }
 ?>

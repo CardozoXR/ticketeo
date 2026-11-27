@@ -18,6 +18,10 @@ function obtenerCajeroPorCaja(int $caja): ?array
     return empty($resultado) ? null : $resultado;
 }
 
+function obtenerCajaDeCajero($cajero_id){
+    return (new Cajeros())->obtenerCajaDeCajero($cajero_id);
+}
+
 function obtenerCajeroActivoPorNumeroCaja(int $numeroCaja, int $eventoId): ?array
 {
     return (new Cajeros())->obtenerCajeroPorNumeroCaja($numeroCaja, $eventoId);

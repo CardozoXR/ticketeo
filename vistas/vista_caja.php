@@ -221,7 +221,7 @@ $nombreCajero = $cajero['nombre'];
             <div class="nueva-venta" id="btn-nuevaventa">
                 <p>Nueva venta</p>
             </div>
-            <div class="reimprimir-tickets" id="btn-reimprimirtickets">
+            <div class="reimprimir-tickets" id="btn-reimprimirtickets" data-impresora="caja<?=$caja?>">
                 <p>Reimprimir tickets</p>
             </div>
         </div>
